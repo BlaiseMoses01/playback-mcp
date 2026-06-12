@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "YT Controller",
+  "version": "0.1.0",
+  "description": "Lets a local MCP server (e.g. Claude Code) control YouTube playback in this browser.",
+  "permissions": ["tabs", "storage", "alarms"],
+  "host_permissions": ["*://www.youtube.com/*"],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": ["*://www.youtube.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

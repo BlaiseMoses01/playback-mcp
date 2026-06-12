@@ -1,0 +1,13 @@
+{
+  "name": "yt-controller",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "server",
+    "extension"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "smoke": "node scripts/mcp-poke.mjs"
+  }
+}
