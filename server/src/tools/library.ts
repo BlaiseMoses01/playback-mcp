@@ -13,7 +13,9 @@ export function registerLibraryTools(server: McpServer, bridge: Bridge): void {
         'Save a YouTube video to the library under a memorable title. Accepts any YouTube URL form. ' +
         'Upserts: saving the same video again just updates its title.',
       inputSchema: {
-        url: z.string().describe('YouTube URL (watch, youtu.be, shorts, embed) or bare 11-char video id'),
+        url: z
+          .string()
+          .describe('YouTube URL (watch, youtu.be, shorts, embed) or bare 11-char video id'),
         title: z.string().describe('Memorable title/alias, e.g. "stairway backing track"'),
       },
     },
@@ -34,8 +36,17 @@ export function registerLibraryTools(server: McpServer, bridge: Bridge): void {
     },
     handler(async ({ query }) => {
       const rows = db.findVideos(query);
-      if (rows.length === 0) return ok(query ? `No videos match "${query}".` : 'Library is empty — save one with save_video.');
-      return ok(rows.map((v) => ({ title: v.title, youtube_id: v.youtube_id, last_played_at: v.last_played_at })));
+      if (rows.length === 0)
+        return ok(
+          query ? `No videos match "${query}".` : 'Library is empty — save one with save_video.',
+        );
+      return ok(
+        rows.map((v) => ({
+          title: v.title,
+          youtube_id: v.youtube_id,
+          last_played_at: v.last_played_at,
+        })),
+      );
     }),
   );
 
@@ -60,7 +71,9 @@ export function registerLibraryTools(server: McpServer, bridge: Bridge): void {
           );
         }
         if (matches.length > 1) {
-          return ok(`Multiple matches — which one? ${matches.map((v) => `"${v.title}"`).join(', ')}`);
+          return ok(
+            `Multiple matches — which one? ${matches.map((v) => `"${v.title}"`).join(', ')}`,
+          );
         }
         row = matches[0];
         ytId = row.youtube_id;
@@ -79,9 +92,18 @@ export function registerLibraryTools(server: McpServer, bridge: Bridge): void {
         'Provide `end_time` to make it a loopable section. Defaults to the currently open video; saving the same label overwrites it.',
       inputSchema: {
         label: z.string().describe('Name, e.g. "intro solo start"'),
-        time: z.string().optional().describe('Time like "0:15", "15", "1m30s" — omit to use the current playback position'),
-        end_time: z.string().optional().describe('Optional end time — makes this a loopable section'),
-        video: z.string().optional().describe('Saved video title — omit for the currently open video'),
+        time: z
+          .string()
+          .optional()
+          .describe('Time like "0:15", "15", "1m30s" — omit to use the current playback position'),
+        end_time: z
+          .string()
+          .optional()
+          .describe('Optional end time — makes this a loopable section'),
+        video: z
+          .string()
+          .optional()
+          .describe('Saved video title — omit for the currently open video'),
       },
     },
     handler(async ({ label, time, end_time, video }) => {
@@ -89,7 +111,8 @@ export function registerLibraryTools(server: McpServer, bridge: Bridge): void {
       let row: db.VideoRow;
       if (video) {
         row = await resolveVideoParam(bridge, video);
-        if (time === undefined) throw new Error('`time` is required when targeting a video that is not currently open.');
+        if (time === undefined)
+          throw new Error('`time` is required when targeting a video that is not currently open.');
         seconds = parseTime(time);
       } else {
         const cur = await currentVideoRow(bridge);
@@ -98,19 +121,29 @@ export function registerLibraryTools(server: McpServer, bridge: Bridge): void {
       }
       const endSeconds = end_time === undefined ? undefined : parseTime(end_time);
       if (endSeconds !== undefined && endSeconds <= seconds) {
-        throw new Error(`end_time (${formatTime(endSeconds)}) must be after time (${formatTime(seconds)})`);
+        throw new Error(
+          `end_time (${formatTime(endSeconds)}) must be after time (${formatTime(seconds)})`,
+        );
       }
       const saved = db.upsertTimestamp(row.id, label, seconds, endSeconds);
       const range = saved.end_seconds != null ? ` → ${formatTime(saved.end_seconds)}` : '';
-      return ok(`Saved "${saved.label}" at ${formatTime(saved.seconds)}${range} on "${row.title}".`);
+      return ok(
+        `Saved "${saved.label}" at ${formatTime(saved.seconds)}${range} on "${row.title}".`,
+      );
     }),
   );
 
   server.registerTool(
     'list_timestamps',
     {
-      description: 'List all saved timestamps/sections for a video. Defaults to the currently open video.',
-      inputSchema: { video: z.string().optional().describe('Saved video title — omit for the currently open video') },
+      description:
+        'List all saved timestamps/sections for a video. Defaults to the currently open video.',
+      inputSchema: {
+        video: z
+          .string()
+          .optional()
+          .describe('Saved video title — omit for the currently open video'),
+      },
     },
     handler(async ({ video }) => {
       const row = await resolveVideoParam(bridge, video);
@@ -133,7 +166,10 @@ export function registerLibraryTools(server: McpServer, bridge: Bridge): void {
       description: 'Delete a saved timestamp by label. Defaults to the currently open video.',
       inputSchema: {
         label: z.string(),
-        video: z.string().optional().describe('Saved video title — omit for the currently open video'),
+        video: z
+          .string()
+          .optional()
+          .describe('Saved video title — omit for the currently open video'),
       },
     },
     handler(async ({ label, video }) => {

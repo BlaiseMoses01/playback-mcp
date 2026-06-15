@@ -4,7 +4,10 @@ import * as db from '../db.js';
 export function ok(data: unknown) {
   return {
     content: [
-      { type: 'text' as const, text: typeof data === 'string' ? data : JSON.stringify(data, null, 2) },
+      {
+        type: 'text' as const,
+        text: typeof data === 'string' ? data : JSON.stringify(data, null, 2),
+      },
     ],
   };
 }
@@ -46,12 +49,19 @@ export async function getPlayerState(bridge: Bridge): Promise<PlayerState> {
  * Resolve the library row for the video currently open in the managed tab,
  * auto-registering it under its page title if it isn't saved yet.
  */
-export async function currentVideoRow(bridge: Bridge): Promise<{ row: db.VideoRow; state: PlayerState }> {
+export async function currentVideoRow(
+  bridge: Bridge,
+): Promise<{ row: db.VideoRow; state: PlayerState }> {
   const state = await getPlayerState(bridge);
-  if (!state.videoId) throw new Error('No YouTube video is open in the managed tab — use open_video first.');
+  if (!state.videoId)
+    throw new Error('No YouTube video is open in the managed tab — use open_video first.');
   let row = db.getVideoByYoutubeId(state.videoId);
   if (!row) {
-    row = db.upsertVideo(state.videoId, `https://www.youtube.com/watch?v=${state.videoId}`, state.title || state.videoId);
+    row = db.upsertVideo(
+      state.videoId,
+      `https://www.youtube.com/watch?v=${state.videoId}`,
+      state.title || state.videoId,
+    );
   }
   return { row, state };
 }
@@ -76,5 +86,7 @@ export async function resolveVideoParam(bridge: Bridge, video?: string): Promise
       `No saved video matches "${video}". Recent videos: ${recent.map((v) => v.title).join(', ') || '(library is empty)'}`,
     );
   }
-  throw new Error(`Multiple videos match "${video}": ${matches.map((v) => v.title).join(', ')} — be more specific.`);
+  throw new Error(
+    `Multiple videos match "${video}": ${matches.map((v) => v.title).join(', ')} — be more specific.`,
+  );
 }

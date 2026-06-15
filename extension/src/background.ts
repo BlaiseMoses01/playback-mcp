@@ -41,7 +41,12 @@ function scheduleReconnect(): void {
   backoffMs = Math.min(backoffMs * 2, 5000);
 }
 
-async function handleMessage(msg: { id?: string; cmd?: string; params?: Record<string, unknown>; event?: string }): Promise<void> {
+async function handleMessage(msg: {
+  id?: string;
+  cmd?: string;
+  params?: Record<string, unknown>;
+  event?: string;
+}): Promise<void> {
   if (msg.event === 'ping') {
     wsSend({ event: 'pong' });
     return;
@@ -63,7 +68,10 @@ async function execute(cmd: string, params: Record<string, unknown>): Promise<un
     | { ok: true; result: unknown }
     | { ok: false; error: string }
     | undefined;
-  if (!response) throw new Error('The YouTube tab did not respond — it may still be loading; retry in a moment.');
+  if (!response)
+    throw new Error(
+      'The YouTube tab did not respond — it may still be loading; retry in a moment.',
+    );
   if (!response.ok) throw new Error(response.error);
   return response.result;
 }

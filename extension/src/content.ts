@@ -17,7 +17,9 @@ let lastHref = location.href;
 let lastAdShowing = false;
 
 function getVideo(): HTMLVideoElement {
-  const v = document.querySelector<HTMLVideoElement>('#movie_player video, video.html5-main-video, video');
+  const v = document.querySelector<HTMLVideoElement>(
+    '#movie_player video, video.html5-main-video, video',
+  );
   if (!v) throw new Error('No video element on this page — open a YouTube watch page first.');
   return v;
 }
@@ -53,7 +55,15 @@ function state(): Record<string, unknown> {
     paused: v.paused,
     rate: v.playbackRate,
     volume: v.volume,
-    loop: loop ? { start: loop.start, end: loop.end, times: loop.times, pass: loop.pass + 1, rates: loop.rates } : null,
+    loop: loop
+      ? {
+          start: loop.start,
+          end: loop.end,
+          times: loop.times,
+          pass: loop.pass + 1,
+          rates: loop.rates,
+        }
+      : null,
     adShowing: adShowing(),
   };
 }
@@ -63,7 +73,12 @@ function rateFor(pass: number): number | undefined {
   return loop.rates[pass] ?? loop.rates[loop.rates.length - 1];
 }
 
-function startLoop(params: { start: number; end: number; times: number; rates?: number[] }): Record<string, unknown> {
+function startLoop(params: {
+  start: number;
+  end: number;
+  times: number;
+  rates?: number[];
+}): Record<string, unknown> {
   cancelLoop(false);
   const v = getVideo();
   loop = {
@@ -146,7 +161,8 @@ function handle(cmd: string, params: Record<string, any>): Record<string, unknow
       v.playbackRate = Number(params.rate);
       return state();
     case 'set_volume': {
-      const target = params.volume !== undefined ? Number(params.volume) : v.volume + Number(params.delta ?? 0);
+      const target =
+        params.volume !== undefined ? Number(params.volume) : v.volume + Number(params.delta ?? 0);
       v.volume = Math.min(1, Math.max(0, target));
       v.muted = false;
       return state();
@@ -163,14 +179,16 @@ function handle(cmd: string, params: Record<string, any>): Record<string, unknow
   }
 }
 
-chrome.runtime.onMessage.addListener((msg: { cmd?: string; params?: Record<string, unknown> }, _sender, sendResponse) => {
-  if (!msg?.cmd) return;
-  try {
-    sendResponse({ ok: true, result: handle(msg.cmd, msg.params ?? {}) });
-  } catch (e: any) {
-    sendResponse({ ok: false, error: String(e?.message ?? e) });
-  }
-});
+chrome.runtime.onMessage.addListener(
+  (msg: { cmd?: string; params?: Record<string, unknown> }, _sender, sendResponse) => {
+    if (!msg?.cmd) return;
+    try {
+      sendResponse({ ok: true, result: handle(msg.cmd, msg.params ?? {}) });
+    } catch (e: any) {
+      sendResponse({ ok: false, error: String(e?.message ?? e) });
+    }
+  },
+);
 
 function onNavigate(): void {
   lastHref = location.href;

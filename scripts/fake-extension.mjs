@@ -45,7 +45,8 @@ ws.on('message', (data) => {
       state.rate = msg.params.rate;
       break;
     case 'set_volume':
-      state.volume = msg.params.volume ?? Math.min(1, Math.max(0, state.volume + (msg.params.delta ?? 0)));
+      state.volume =
+        msg.params.volume ?? Math.min(1, Math.max(0, state.volume + (msg.params.delta ?? 0)));
       break;
     case 'loop':
       state.loop = { ...msg.params, pass: 1 };

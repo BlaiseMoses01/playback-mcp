@@ -4,7 +4,10 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
-const server = spawn('node', ['server/dist/index.js'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
+const server = spawn('node', ['server/dist/index.js'], {
+  cwd: root,
+  stdio: ['pipe', 'pipe', 'pipe'],
+});
 let serverExitError = null;
 let serverStderr = '';
 
@@ -37,7 +40,9 @@ server.stdout.on('data', (d) => {
 server.on('exit', (code, signal) => {
   const detail = signal ? `signal ${signal}` : `code ${code}`;
   const stderrHint = serverStderr.trim() ? `\nServer stderr:\n${serverStderr.trim()}` : '';
-  serverExitError = new Error(`server exited before completing the smoke test (${detail})${stderrHint}`);
+  serverExitError = new Error(
+    `server exited before completing the smoke test (${detail})${stderrHint}`,
+  );
   for (const { reject, timer } of pending.values()) {
     clearTimeout(timer);
     reject(serverExitError);
@@ -88,7 +93,10 @@ try {
   await call('get_state');
   await call('pause');
 
-  fakeExt = spawn('node', ['scripts/fake-extension.mjs'], { cwd: root, stdio: ['ignore', 'pipe', 'inherit'] });
+  fakeExt = spawn('node', ['scripts/fake-extension.mjs'], {
+    cwd: root,
+    stdio: ['ignore', 'pipe', 'inherit'],
+  });
   fakeExt.stdout.on('data', (d) => process.stderr.write(`[fake-ext] ${d}`));
   await new Promise((r) => setTimeout(r, 500));
 

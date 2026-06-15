@@ -30,7 +30,9 @@ export class Bridge {
     const wss = new WebSocketServer({ host: '127.0.0.1', port });
     wss.on('error', (err: NodeJS.ErrnoException) => {
       if (err.code === 'EADDRINUSE') {
-        log(`port ${port} is already in use — is another session running this MCP server? Exiting.`);
+        log(
+          `port ${port} is already in use — is another session running this MCP server? Exiting.`,
+        );
         process.exit(1);
       }
       log('websocket server error:', err.message);

@@ -6,9 +6,15 @@ export function parseTime(input: string | number): number {
   }
   const s = input.trim().toLowerCase().replace(/^@/, '');
   if (/^\d+(:\d{1,2}){1,2}(\.\d+)?$/.test(s)) {
-    return s.split(':').map(Number).reduce((acc, p) => acc * 60 + p, 0);
+    return s
+      .split(':')
+      .map(Number)
+      .reduce((acc, p) => acc * 60 + p, 0);
   }
-  const unit = /^(?:(\d+(?:\.\d+)?)\s*h)?\s*(?:(\d+(?:\.\d+)?)\s*m(?:in)?)?\s*(?:(\d+(?:\.\d+)?)\s*s(?:ec)?)?$/.exec(s);
+  const unit =
+    /^(?:(\d+(?:\.\d+)?)\s*h)?\s*(?:(\d+(?:\.\d+)?)\s*m(?:in)?)?\s*(?:(\d+(?:\.\d+)?)\s*s(?:ec)?)?$/.exec(
+      s,
+    );
   if (unit && (unit[1] || unit[2] || unit[3])) {
     return Number(unit[1] ?? 0) * 3600 + Number(unit[2] ?? 0) * 60 + Number(unit[3] ?? 0);
   }
@@ -27,7 +33,10 @@ export function formatTime(seconds: number): string {
 
 /** "0.75x" | "0.75" | 0.75 → 0.75, clamped to YouTube's supported 0.25–2.0 range. */
 export function parseRate(input: string | number): number {
-  const n = typeof input === 'number' ? input : Number(String(input).trim().toLowerCase().replace(/x$/, ''));
+  const n =
+    typeof input === 'number'
+      ? input
+      : Number(String(input).trim().toLowerCase().replace(/x$/, ''));
   if (!Number.isFinite(n)) throw new Error(`Cannot parse playback rate "${input}"`);
   return Math.min(2, Math.max(0.25, n));
 }
@@ -36,7 +45,8 @@ export function parseRate(input: string | number): number {
 export function parseVolume(input: string | number): { volume?: number; delta?: number } {
   const s = String(input).trim();
   const n = Number(s);
-  if (!Number.isFinite(n)) throw new Error(`Cannot parse volume "${input}" — use 0-100, "+10", or "-10"`);
+  if (!Number.isFinite(n))
+    throw new Error(`Cannot parse volume "${input}" — use 0-100, "+10", or "-10"`);
   const clamped = Math.min(100, Math.max(-100, n));
   if (/^[+-]/.test(s)) return { delta: clamped / 100 };
   return { volume: Math.max(0, clamped) / 100 };

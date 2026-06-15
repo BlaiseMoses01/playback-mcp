@@ -7,11 +7,15 @@ import path from 'node:path';
 function defaultDataDir(): string {
   if (process.env.YT_CONTROLLER_DATA_DIR) return process.env.YT_CONTROLLER_DATA_DIR;
   const home = os.homedir();
-  if (process.platform === 'darwin') return path.join(home, 'Library', 'Application Support', 'yt-controller');
+  if (process.platform === 'darwin')
+    return path.join(home, 'Library', 'Application Support', 'yt-controller');
   if (process.platform === 'win32') {
     return path.join(process.env.APPDATA ?? path.join(home, 'AppData', 'Roaming'), 'yt-controller');
   }
-  return path.join(process.env.XDG_DATA_HOME ?? path.join(home, '.local', 'share'), 'yt-controller');
+  return path.join(
+    process.env.XDG_DATA_HOME ?? path.join(home, '.local', 'share'),
+    'yt-controller',
+  );
 }
 
 const dataDir = defaultDataDir();
@@ -96,7 +100,9 @@ export function upsertVideo(youtubeId: string, url: string, title: string): Vide
 export function findVideos(query?: string): VideoRow[] {
   if (query && query.trim()) {
     return db
-      .prepare(`SELECT * FROM videos WHERE title LIKE '%' || ? || '%' COLLATE NOCASE ORDER BY COALESCE(last_played_at, created_at) DESC`)
+      .prepare(
+        `SELECT * FROM videos WHERE title LIKE '%' || ? || '%' COLLATE NOCASE ORDER BY COALESCE(last_played_at, created_at) DESC`,
+      )
       .all(query.trim()) as unknown as VideoRow[];
   }
   return db
@@ -105,14 +111,21 @@ export function findVideos(query?: string): VideoRow[] {
 }
 
 export function getVideoByYoutubeId(youtubeId: string): VideoRow | undefined {
-  return db.prepare(`SELECT * FROM videos WHERE youtube_id = ?`).get(youtubeId) as unknown as VideoRow | undefined;
+  return db.prepare(`SELECT * FROM videos WHERE youtube_id = ?`).get(youtubeId) as unknown as
+    | VideoRow
+    | undefined;
 }
 
 export function touchLastPlayed(id: number): void {
   db.prepare(`UPDATE videos SET last_played_at = datetime('now') WHERE id = ?`).run(id);
 }
 
-export function upsertTimestamp(videoId: number, label: string, seconds: number, endSeconds?: number): TimestampRow {
+export function upsertTimestamp(
+  videoId: number,
+  label: string,
+  seconds: number,
+  endSeconds?: number,
+): TimestampRow {
   return db
     .prepare(
       `INSERT INTO timestamps (video_id, label, seconds, end_seconds) VALUES (?, ?, ?, ?)
@@ -123,17 +136,23 @@ export function upsertTimestamp(videoId: number, label: string, seconds: number,
 }
 
 export function listTimestamps(videoId: number): TimestampRow[] {
-  return db.prepare(`SELECT * FROM timestamps WHERE video_id = ? ORDER BY seconds`).all(videoId) as unknown as TimestampRow[];
+  return db
+    .prepare(`SELECT * FROM timestamps WHERE video_id = ? ORDER BY seconds`)
+    .all(videoId) as unknown as TimestampRow[];
 }
 
 export function findTimestamps(videoId: number, label: string): TimestampRow[] {
   return db
-    .prepare(`SELECT * FROM timestamps WHERE video_id = ? AND label LIKE '%' || ? || '%' COLLATE NOCASE ORDER BY seconds`)
+    .prepare(
+      `SELECT * FROM timestamps WHERE video_id = ? AND label LIKE '%' || ? || '%' COLLATE NOCASE ORDER BY seconds`,
+    )
     .all(videoId, label.trim()) as unknown as TimestampRow[];
 }
 
 export function deleteTimestamp(videoId: number, label: string): boolean {
-  const exact = db.prepare(`DELETE FROM timestamps WHERE video_id = ? AND label = ? COLLATE NOCASE`).run(videoId, label);
+  const exact = db
+    .prepare(`DELETE FROM timestamps WHERE video_id = ? AND label = ? COLLATE NOCASE`)
+    .run(videoId, label);
   if (exact.changes > 0) return true;
   const matches = findTimestamps(videoId, label);
   if (matches.length === 1) {

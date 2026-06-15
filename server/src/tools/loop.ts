@@ -17,13 +17,18 @@ export function registerLoopTools(server: McpServer, bridge: Bridge): void {
         'just tell the user the ETA. The user can interrupt anytime with stop_loop.',
       inputSchema: {
         label: z.string().optional().describe('Saved section/timestamp name, e.g. "intro solo"'),
-        start: z.string().optional().describe('Start time or timestamp label (alternative to label)'),
+        start: z
+          .string()
+          .optional()
+          .describe('Start time or timestamp label (alternative to label)'),
         end: z.string().optional().describe('End time or timestamp label (alternative to label)'),
         times: z.number().int().min(1).max(50).default(1).describe('Number of passes'),
         speeds: z
           .array(z.union([z.string(), z.number()]))
           .optional()
-          .describe('Per-pass playback rates, e.g. [0.5, 0.75, 1.0]; the last rate repeats if shorter than `times`'),
+          .describe(
+            'Per-pass playback rates, e.g. [0.5, 0.75, 1.0]; the last rate repeats if shorter than `times`',
+          ),
       },
     },
     handler(async ({ label, start, end, times, speeds }) => {
@@ -60,7 +65,10 @@ export function registerLoopTools(server: McpServer, bridge: Bridge): void {
         throw new Error('Provide either `label`, or both `start` and `end`.');
       }
 
-      if (endSec <= startSec) throw new Error(`Loop end (${formatTime(endSec)}) must be after start (${formatTime(startSec)}).`);
+      if (endSec <= startSec)
+        throw new Error(
+          `Loop end (${formatTime(endSec)}) must be after start (${formatTime(startSec)}).`,
+        );
 
       const rates = (speeds ?? []).map(parseRate);
       const rateFor = (pass: number) => rates[pass] ?? rates.at(-1) ?? 1;
@@ -80,7 +88,10 @@ export function registerLoopTools(server: McpServer, bridge: Bridge): void {
 
   server.registerTool(
     'stop_loop',
-    { description: 'Cancel the active loop (playback pauses and the pre-loop speed is restored).', inputSchema: {} },
+    {
+      description: 'Cancel the active loop (playback pauses and the pre-loop speed is restored).',
+      inputSchema: {},
+    },
     handler(async () => {
       const state = await bridge.send('loop_cancel');
       return ok(`Loop cancelled at ${formatTime(state.currentTime)}.`);
