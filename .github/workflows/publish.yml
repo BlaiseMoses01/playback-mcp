@@ -1,6 +1,7 @@
 name: Publish
 
-# Publishes the `playback-mcp` server to npm when a GitHub Release is published.
+# On a published GitHub Release this (1) publishes the `playback-mcp` server to npm
+# and (2) builds the Chrome extension and attaches it as a `.zip` release asset.
 # Bump server/package.json's version and tag the release (vX.Y.Z) first; see
 # CONTRIBUTING / the release notes for the manual bump + tag flow.
 
@@ -11,7 +12,6 @@ on:
 
 permissions:
   contents: read
-  id-token: write # required for npm provenance (--provenance)
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -20,6 +20,9 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write # required for npm provenance (--provenance)
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
@@ -43,3 +46,34 @@ jobs:
         run: npm publish --workspace server --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # Builds extension/dist and attaches it to the release as a load-unpacked zip.
+  # Skipped on workflow_dispatch (no release to attach to). Note: the bundle bakes
+  # in YT_BRIDGE_PORT at build time (default 8765) — custom ports need a local build.
+  package-extension:
+    runs-on: ubuntu-24.04
+    if: github.event_name == 'release'
+    permissions:
+      contents: write # upload the zip as a release asset
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Set up Node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build extension
+        run: npm run build --workspace extension
+
+      - name: Zip extension
+        run: (cd extension/dist && zip -r "../../playback-mcp-extension-${{ github.event.release.tag_name }}.zip" .)
+
+      - name: Attach to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.release.tag_name }}" "playback-mcp-extension-${{ github.event.release.tag_name }}.zip" --clobber
