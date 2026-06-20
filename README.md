@@ -25,10 +25,31 @@ Claude Code ──stdio──▶ playback-mcp ──ws://127.0.0.1:8765──▶
 
 **Bot-safe by design:** the extension only reads/writes the `<video>` element's properties (currentTime, playbackRate, volume, play/pause). It never clicks UI, never scrapes, never automates navigation beyond opening a watch URL. This is meant to minimize any malicious user flagging or bot detection issues.
 
-## Local Setup
+## Install
 
-Requires Node ≥ 23.4 (Node 24 LTS recommended — uses the built-in `node:sqlite`) and
-Chrome.
+The released way — no clone, no build. Requires Node ≥ 23.4 (Node 24 LTS recommended
+— uses the built-in `node:sqlite`) and Chrome.
+
+1. Install the server: `npm i -g playback-mcp`
+2. Download `playback-mcp-extension-vX.Y.Z.zip` from the
+   [latest release](https://github.com/BlaiseMoses01/playback-mcp/releases/latest) and
+   unzip it
+3. Open `chrome://extensions`, enable **Developer mode**, click **Load unpacked**, and
+   pick the unzipped folder
+4. Register the server with Claude Code. Pick one:
+   - **Private to you (default scope):** `claude mcp add playback-mcp -- playback-mcp`
+   - **Project-scoped (committed, shared with anyone who opens the repo):** add a
+     `.mcp.json` at the repo root:
+     ```json
+     { "mcpServers": { "playback-mcp": { "command": "playback-mcp" } } }
+     ```
+
+Navigate to a YouTube video and ask Claude to pause it.
+
+## Build from source
+
+For development, or to run a custom `YT_BRIDGE_PORT` (the released extension bakes in
+port 8765 at build time):
 
 ```sh
 npm ci
@@ -37,30 +58,7 @@ npm run build
 
 1. Open `chrome://extensions`, enable **Developer mode**
 2. Click **Load unpacked** and pick `extension/dist`
-3. Register the server with Claude Code. Pick one:
-   - **Private to you (default scope):**
-     `claude mcp add playback-mcp -- node /abs/path/server/dist/index.js`
-   - **Project-scoped (committed, shared with anyone who opens the repo):** add a
-     `.mcp.json` at the repo root —
-     `claude mcp add --scope project playback-mcp -- node /abs/path/server/dist/index.js`,
-     or commit it directly:
-     ```json
-     {
-       "mcpServers": {
-         "playback-mcp": {
-           "command": "node",
-           "args": ["/abs/path/server/dist/index.js"]
-         }
-       }
-     }
-     ```
-
-Open chrom , navigate to a YT video and ask Claude to pause it.
-
-> Once `playback-mcp` is published to npm, the path-free install is
-> `npm i -g playback-mcp` (one-time) and a `.mcp.json` of
-> `{ "mcpServers": { "playback-mcp": { "command": "playback-mcp" } } }`.
-> Note the Node ≥ 23.4 requirement still applies, and the extension must be loaded as above.
+3. Register the server: `claude mcp add playback-mcp -- node /abs/path/server/dist/index.js`
 
 ## Tools
 
