@@ -1,5 +1,5 @@
 {
-  "name": "@yt-controller/extension",
+  "name": "@playback-mcp/extension",
   "private": true,
   "type": "module",
   "scripts": {

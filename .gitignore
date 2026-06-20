@@ -1,9 +1,28 @@
+# Dependencies
 node_modules/
+
+# Build output (server/dist, extension/dist)
 dist/
+
+# Packaging artifacts
 *.zip
+*.tgz
+
+# Test/coverage output
 coverage/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment / secrets
 .env
 .env.*
+
+# Editor / OS cruft
 .DS_Store
 .vscode/
 *.swp
+
+# Claude Code local (per-machine) settings
+.claude/settings.local.json

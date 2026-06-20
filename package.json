@@ -1,14 +1,14 @@
 {
-  "name": "yt-controller",
+  "name": "playback-mcp",
   "private": true,
   "license": "MIT",
   "author": "Blaise Moses <bamoses2001@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/BlaiseMoses01/yt-controller.git"
+    "url": "git+https://github.com/BlaiseMoses01/playback-mcp.git"
   },
-  "homepage": "https://github.com/BlaiseMoses01/yt-controller#readme",
-  "bugs": "https://github.com/BlaiseMoses01/yt-controller/issues",
+  "homepage": "https://github.com/BlaiseMoses01/playback-mcp#readme",
+  "bugs": "https://github.com/BlaiseMoses01/playback-mcp/issues",
   "type": "module",
   "workspaces": [
     "server",

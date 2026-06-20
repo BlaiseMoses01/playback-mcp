@@ -1,0 +1,13 @@
+node_modules/
+dist/
+# Copied from the repo root by the prepack script so the published tarball
+# carries them; not source — do not commit.
+README.md
+LICENSE
+*.zip
+coverage/
+.env
+.env.*
+.DS_Store
+.vscode/
+*.swp

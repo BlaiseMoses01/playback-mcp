@@ -3,19 +3,16 @@ import { mkdirSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-// Per-user data dir (override with YT_CONTROLLER_DATA_DIR).
+// Per-user data dir (override with PLAYBACK_MCP_DATA_DIR).
 function defaultDataDir(): string {
-  if (process.env.YT_CONTROLLER_DATA_DIR) return process.env.YT_CONTROLLER_DATA_DIR;
+  if (process.env.PLAYBACK_MCP_DATA_DIR) return process.env.PLAYBACK_MCP_DATA_DIR;
   const home = os.homedir();
   if (process.platform === 'darwin')
-    return path.join(home, 'Library', 'Application Support', 'yt-controller');
+    return path.join(home, 'Library', 'Application Support', 'playback-mcp');
   if (process.platform === 'win32') {
-    return path.join(process.env.APPDATA ?? path.join(home, 'AppData', 'Roaming'), 'yt-controller');
+    return path.join(process.env.APPDATA ?? path.join(home, 'AppData', 'Roaming'), 'playback-mcp');
   }
-  return path.join(
-    process.env.XDG_DATA_HOME ?? path.join(home, '.local', 'share'),
-    'yt-controller',
-  );
+  return path.join(process.env.XDG_DATA_HOME ?? path.join(home, '.local', 'share'), 'playback-mcp');
 }
 
 const dataDir = defaultDataDir();

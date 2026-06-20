@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-06-20
+
 ### Added
 
-- MCP server (`yt-controller-mcp`) controlling YouTube playback in the browser via a
+- MCP server (`playback-mcp`) controlling YouTube playback in the browser via a
   companion Chrome extension over a localhost WebSocket bridge: `play`/`pause`, `seek`,
   `set_speed`, `set_volume`, `loop_section` (with per-pass speed ramps) / `stop_loop`,
   `save_video`/`find_videos`/`open_video`, `save_timestamp`/`list_timestamps`/
@@ -22,4 +24,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   workflows; Dependabot for GitHub Actions and npm; husky + lint-staged pre-commit hooks.
 - Project docs: README, CONTRIBUTING, SECURITY, AGENTS/CLAUDE guidance, and a PR template.
 
-[Unreleased]: https://github.com/BlaiseMoses01/yt-controller/commits/main
+[Unreleased]: https://github.com/BlaiseMoses01/playback-mcp/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.1.0
