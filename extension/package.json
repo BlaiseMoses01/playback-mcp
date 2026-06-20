@@ -6,7 +6,7 @@
     "build": "node esbuild.mjs"
   },
   "devDependencies": {
-    "@types/chrome": "^0.0.287",
+    "@types/chrome": "^0.1.43",
     "esbuild": "^0.28.1",
     "typescript": "^5.6.0"
   }
