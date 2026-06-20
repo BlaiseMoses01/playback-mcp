@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/BlaiseMoses01/playback-mcp/v0.1.0/assets/social-preview.png" alt="playback-mcp — control YouTube playback from your editor" width="720">
+</p>
+
 # Playback MCP
 
 [![CI](https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/ci.yml)

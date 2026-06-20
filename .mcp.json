@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "playback-mcp": {
+      "command": "node",
+      "args": ["/home/blaise-moses/mono-refactor/yt-controller/server/dist/index.js"]
+    }
+  }
+}
