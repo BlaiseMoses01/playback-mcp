@@ -9,7 +9,7 @@ maintained release branches or published artifacts yet.
 
 Please report security issues **privately** — do not open a public issue.
 
-- Preferred: open a [GitHub Security Advisory](https://github.com/BlaiseMoses01/yt-controller/security/advisories/new).
+- Preferred: open a [GitHub Security Advisory](https://github.com/BlaiseMoses01/playback-mcp/security/advisories/new).
 - Or email: bamoses2001@gmail.com
 
 Please include steps to reproduce and the affected component (the MCP server in

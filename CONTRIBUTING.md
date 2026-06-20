@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest. `yt-controller` is a local-first, two-part system: an MCP
+Thanks for your interest. `playback-mcp` is a local-first, two-part system: an MCP
 server workspace (`server/`) and a Chrome extension workspace (`extension/`). It's an
 npm **workspace monorepo** — install and run tooling from the repo root.
 
@@ -24,7 +24,7 @@ node scripts/fake-extension.mjs   # mock extension that acks all commands, for m
 
 Load `extension/dist` unpacked in Chrome (`chrome://extensions` → Developer mode →
 Load unpacked) and register the server with
-`claude mcp add yt-controller -- node /abs/path/server/dist/index.js`.
+`claude mcp add playback-mcp -- node /abs/path/server/dist/index.js`.
 
 ## Before opening a PR
 

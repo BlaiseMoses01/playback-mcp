@@ -1,19 +1,19 @@
 {
-  "name": "yt-controller-mcp",
+  "name": "playback-mcp",
   "version": "0.1.0",
-  "description": "MCP server that controls YouTube playback in your browser via the YT Controller extension — play, seek, loop sections, save timestamps, build a video library",
+  "description": "MCP server that controls YouTube playback in your browser via the Playback MCP extension — play, seek, loop sections, save timestamps, build a video library",
   "license": "MIT",
   "author": "Blaise Moses <bamoses2001@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/BlaiseMoses01/yt-controller.git",
+    "url": "git+https://github.com/BlaiseMoses01/playback-mcp.git",
     "directory": "server"
   },
-  "homepage": "https://github.com/BlaiseMoses01/yt-controller#readme",
-  "bugs": "https://github.com/BlaiseMoses01/yt-controller/issues",
+  "homepage": "https://github.com/BlaiseMoses01/playback-mcp#readme",
+  "bugs": "https://github.com/BlaiseMoses01/playback-mcp/issues",
   "type": "module",
   "bin": {
-    "yt-controller-mcp": "dist/index.js"
+    "playback-mcp": "dist/index.js"
   },
   "files": [
     "dist"
@@ -22,7 +22,8 @@
     "node": ">=23.4"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json",
+    "prepack": "npm run build && cp ../README.md ../LICENSE ."
   },
   "keywords": [
     "mcp",

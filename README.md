@@ -1,8 +1,12 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/BlaiseMoses01/playback-mcp/assets/social-preview.png" alt="playback-mcp — control YouTube playback from your editor" width="720">
+</p>
+
 # Playback MCP
 
-[![CI](https://github.com/BlaiseMoses01/yt-controller/actions/workflows/ci.yml/badge.svg)](https://github.com/BlaiseMoses01/yt-controller/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/BlaiseMoses01/yt-controller/actions/workflows/codeql.yml/badge.svg)](https://github.com/BlaiseMoses01/yt-controller/actions/workflows/codeql.yml)
-[![Secret Scanning](https://github.com/BlaiseMoses01/yt-controller/actions/workflows/gitleaks.yml/badge.svg)](https://github.com/BlaiseMoses01/yt-controller/actions/workflows/gitleaks.yml)
+[![CI](https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/codeql.yml/badge.svg)](https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/codeql.yml)
+[![Secret Scanning](https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/gitleaks.yml/badge.svg)](https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/gitleaks.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Control playback in your browser from [MCP](https://modelcontextprotocol.io) clients like Claude Code. Local-first, free, MIT.
@@ -16,7 +20,7 @@ and it happens in your actual Chrome tab — play, pause, seek, speed, volume, A
 Two parts, both local:
 
 ```
-Claude Code ──stdio──▶ yt-controller-mcp ──ws://127.0.0.1:8765──▶ YT Controller extension ──▶ <video>
+Claude Code ──stdio──▶ playback-mcp ──ws://127.0.0.1:8765──▶ Playback MCP extension ──▶ <video>
 ```
 
 **Bot-safe by design:** the extension only reads/writes the `<video>` element's properties (currentTime, playbackRate, volume, play/pause). It never clicks UI, never scrapes, never automates navigation beyond opening a watch URL. This is meant to minimize any malicious user flagging or bot detection issues.
@@ -33,9 +37,30 @@ npm run build
 
 1. Open `chrome://extensions`, enable **Developer mode**
 2. Click **Load unpacked** and pick `extension/dist`
-3. Register the server with `claude mcp add yt-controller -- node /abs/path/server/dist/index.js`
+3. Register the server with Claude Code. Pick one:
+   - **Private to you (default scope):**
+     `claude mcp add playback-mcp -- node /abs/path/server/dist/index.js`
+   - **Project-scoped (committed, shared with anyone who opens the repo):** add a
+     `.mcp.json` at the repo root —
+     `claude mcp add --scope project playback-mcp -- node /abs/path/server/dist/index.js`,
+     or commit it directly:
+     ```json
+     {
+       "mcpServers": {
+         "playback-mcp": {
+           "command": "node",
+           "args": ["/abs/path/server/dist/index.js"]
+         }
+       }
+     }
+     ```
 
 Open chrom , navigate to a YT video and ask Claude to pause it.
+
+> Once `playback-mcp` is published to npm, the path-free install is
+> `npm i -g playback-mcp` (one-time) and a `.mcp.json` of
+> `{ "mcpServers": { "playback-mcp": { "command": "playback-mcp" } } }`.
+> Note the Node ≥ 23.4 requirement still applies, and the extension must be loaded as above.
 
 ## Tools
 
@@ -55,17 +80,17 @@ Time inputs are forgiving: `"90"`, `"1:30"`, `"1m30s"`, `"1:02:03"`; speeds acce
 
 ## Configuration
 
-| Env var                  | Default            | What                                                                                                                                                                         |
-| ------------------------ | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `YT_BRIDGE_PORT`         | `8765`             | WebSocket port between server and extension. The extension bundle captures this at build time, so if you change it you must rebuild the extension with the same env var set. |
-| `YT_CONTROLLER_DATA_DIR` | platform data dir¹ | Where the SQLite library lives (`library.db`)                                                                                                                                |
+| Env var                 | Default            | What                                                                                                                                                                         |
+| ----------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `YT_BRIDGE_PORT`        | `8765`             | WebSocket port between server and extension. The extension bundle captures this at build time, so if you change it you must rebuild the extension with the same env var set. |
+| `PLAYBACK_MCP_DATA_DIR` | platform data dir¹ | Where the SQLite library lives (`library.db`)                                                                                                                                |
 
-¹ Linux: `~/.local/share/yt-controller` (respects `XDG_DATA_HOME`) · macOS: `~/Library/Application Support/yt-controller` · Windows: `%APPDATA%\yt-controller`
+¹ Linux: `~/.local/share/playback-mcp` (respects `XDG_DATA_HOME`) · macOS: `~/Library/Application Support/playback-mcp` · Windows: `%APPDATA%\playback-mcp`
 
 ## Troubleshooting
 
 - **"Chrome extension is not connected"** — make sure the extension is loaded and Chrome is running; it reconnects automatically within a few seconds.
-- **"port 8765 is already in use"** — only one yt-controller MCP server can run at a time (the extension speaks to one server). Close the other session.
+- **"port 8765 is already in use"** — only one playback-mcp MCP server can run at a time (the extension speaks to one server). Close the other session.
 - **Tools work but nothing happens on screen** — confirm the managed YouTube tab still exists; `open_video` creates one.
 
 ## Development

@@ -1,0 +1,16 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0.2" x2="0" y2="0.95">
+      <stop offset="0" stop-color="#5A5EEA"/><stop offset="1" stop-color="#3F37B5"/>
+    </linearGradient>
+  </defs>
+  <!-- playback-mcp robot mark (head-only standard) -->
+  <polyline points="256,140 256,98 296,72" fill="none" stroke="#4338CA"
+            stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="296" cy="68" r="16" fill="#FF5A52"/>
+  <rect x="70" y="138" width="372" height="298" rx="58" fill="url(#grad)"/>
+  <rect x="116" y="186" width="280" height="202" rx="34" fill="#111119"/>
+  <rect x="128" y="198" width="256" height="178" rx="26" fill="none" stroke="#2A2A3C" stroke-width="5"/>
+  <path d="M212 232 L212 342 L312 287 Z" fill="#FF5A52" stroke="#FF5A52"
+        stroke-width="18" stroke-linejoin="round" stroke-linecap="round"/>
+</svg>

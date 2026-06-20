@@ -3,3 +3,6 @@ node_modules
 coverage
 package-lock.json
 extension/manifest.json
+# Copied from the repo root into server/ by the prepack script; not source.
+server/README.md
+server/LICENSE

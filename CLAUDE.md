@@ -7,13 +7,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 A local-first, two-part system for controlling YouTube playback from MCP clients:
 
 ```
-Claude Code ──stdio──▶ yt-controller-mcp ──ws://127.0.0.1:8765──▶ YT Controller extension ──▶ <video>
+Claude Code ──stdio──▶ playback-mcp ──ws://127.0.0.1:8765──▶ Playback MCP extension ──▶ <video>
 ```
 
 It's an npm **workspace monorepo** (`server` + `extension`); ESM throughout. Run all
 tooling from the repo root.
 
-- `server/` — the MCP server workspace (package name: `yt-controller-mcp`). Node ≥ 23.4
+- `server/` — the MCP server workspace (package name: `playback-mcp`). Node ≥ 23.4
   (uses the built-in `node:sqlite`).
 - `extension/` — the Chrome extension workspace, bundled with esbuild and loaded
   unpacked from `extension/dist` during development.
@@ -34,7 +34,7 @@ npm run smoke          # E2E over real MCP stdio, no browser needed
 
 ```
 server/src/
-  index.ts        # MCP server entry (bin: yt-controller-mcp) — registers tools over stdio
+  index.ts        # MCP server entry (bin: playback-mcp) — registers tools over stdio
   bridge.ts       # localhost WebSocket bridge to the extension; owns the exclusive port
   db.ts           # saved-video library on top of node:sqlite
   timeparse.ts    # pure: parse/format times, rates, volumes from agent-supplied strings

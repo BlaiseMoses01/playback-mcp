@@ -14,3 +14,4 @@ await esbuild.build({
 });
 
 cpSync('manifest.json', 'dist/manifest.json');
+cpSync('icons', 'dist/icons', { recursive: true });

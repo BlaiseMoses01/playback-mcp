@@ -8,7 +8,7 @@ import { registerLoopTools } from './tools/loop.js';
 
 // IMPORTANT: stdout belongs to the MCP stdio transport — all logging goes to stderr.
 
-const server = new McpServer({ name: 'yt-controller', version: '0.1.0' });
+const server = new McpServer({ name: 'playback-mcp', version: '0.1.0' });
 const bridge = new Bridge();
 bridge.start(Number(process.env.YT_BRIDGE_PORT ?? 8765));
 
@@ -17,4 +17,4 @@ registerPlaybackTools(server, bridge);
 registerLoopTools(server, bridge);
 
 await server.connect(new StdioServerTransport());
-console.error('[yt-controller] MCP server ready (stdio)');
+console.error('[playback-mcp] MCP server ready (stdio)');

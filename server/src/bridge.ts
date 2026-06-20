@@ -3,7 +3,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 const log = (...args: unknown[]) => console.error('[bridge]', ...args);
 
 export const OFFLINE_HINT =
-  'Chrome extension is not connected. Open Chrome and confirm the YT Controller extension is loaded ' +
+  'Chrome extension is not connected. Open Chrome and confirm the Playback MCP extension is loaded ' +
   '(chrome://extensions → Developer mode → Load unpacked), then retry.';
 
 export class BridgeOfflineError extends Error {

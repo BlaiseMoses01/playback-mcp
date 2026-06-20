@@ -1,0 +1,24 @@
+<svg width="1280" height="640" viewBox="0 0 1280 640" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0.2" x2="0" y2="0.95">
+      <stop offset="0" stop-color="#5A5EEA"/><stop offset="1" stop-color="#3F37B5"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#4F46E5" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#4F46E5" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="640" fill="#0E0E16"/>
+  <circle cx="315" cy="320" r="270" fill="url(#glow)"/>
+  <g transform="translate(150,155) scale(0.645)">
+    <polyline points="256,140 256,98 296,72" fill="none" stroke="#4338CA" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="296" cy="68" r="16" fill="#FF5A52"/>
+    <rect x="70" y="138" width="372" height="298" rx="58" fill="url(#grad)"/>
+    <rect x="116" y="186" width="280" height="202" rx="34" fill="#111119"/>
+    <rect x="128" y="198" width="256" height="178" rx="26" fill="none" stroke="#2A2A3C" stroke-width="5"/>
+    <path d="M212 232 L212 342 L312 287 Z" fill="#FF5A52" stroke="#FF5A52" stroke-width="18" stroke-linejoin="round" stroke-linecap="round"/>
+  </g>
+  <text x="560" y="332" font-family="'JetBrains Mono','SFMono-Regular',Menlo,Consolas,monospace" font-size="90" font-weight="700" fill="#FFFFFF">playback-mcp</text>
+  <text x="560" y="396" font-family="'JetBrains Mono',Menlo,Consolas,monospace" font-size="30" fill="#9696AA">save  ·  loop  ·  speed  ·  timestamps</text>
+  <text x="560" y="440" font-family="'JetBrains Mono',Menlo,Consolas,monospace" font-size="30" fill="#9696AA">youtube control, from your editor</text>
+</svg>

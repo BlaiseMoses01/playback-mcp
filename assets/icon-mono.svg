@@ -1,0 +1,16 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+  <!-- single-color mark; play button is negative space. color = currentColor -->
+  <defs>
+    <mask id="playCut">
+      <rect width="512" height="512" fill="white"/>
+      <path d="M212 232 L212 342 L312 287 Z" fill="black" stroke="black"
+            stroke-width="18" stroke-linejoin="round" stroke-linecap="round"/>
+    </mask>
+  </defs>
+  <g mask="url(#playCut)">
+    <polyline points="256,140 256,98 296,72" fill="none" stroke="currentColor"
+              stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="296" cy="68" r="16"/>
+    <rect x="70" y="138" width="372" height="298" rx="58"/>
+  </g>
+</svg>
