@@ -1,0 +1,23 @@
+{
+  "0": "MCP Tool Handlers",
+  "1": "Server Build Config",
+  "2": "Root Workspace Config",
+  "3": "Extension Manifest",
+  "4": "Video Database",
+  "5": "Content Script",
+  "6": "Server TypeScript Config",
+  "7": "Contribution Guidelines",
+  "8": "Dev Dependencies",
+  "9": "Extension Package Config",
+  "10": "Extension TypeScript Config",
+  "11": "Project Documentation",
+  "12": "Background Service Worker",
+  "13": "Project Setup Docs",
+  "14": "Development Scripts",
+  "15": "Changelog",
+  "16": "Security Policy",
+  "17": "Test Helpers",
+  "18": "ESLint Config",
+  "19": "Extension Build Config",
+  "20": "Test Runner Config"
+}

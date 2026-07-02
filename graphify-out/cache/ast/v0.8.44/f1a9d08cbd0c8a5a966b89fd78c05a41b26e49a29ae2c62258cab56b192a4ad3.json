@@ -1,0 +1,79 @@
+{
+  "nodes": [
+    {
+      "id": "mnt_data_local_repos_playback_mcp_security_md",
+      "label": "SECURITY.md",
+      "file_type": "document",
+      "source_file": "SECURITY.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "playback_mcp_security_security_policy",
+      "label": "Security Policy",
+      "file_type": "document",
+      "source_file": "SECURITY.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "playback_mcp_security_supported_versions",
+      "label": "Supported versions",
+      "file_type": "document",
+      "source_file": "SECURITY.md",
+      "source_location": "L3"
+    },
+    {
+      "id": "playback_mcp_security_reporting_a_vulnerability",
+      "label": "Reporting a vulnerability",
+      "file_type": "document",
+      "source_file": "SECURITY.md",
+      "source_location": "L8"
+    },
+    {
+      "id": "playback_mcp_security_scope_notes",
+      "label": "Scope notes",
+      "file_type": "document",
+      "source_file": "SECURITY.md",
+      "source_location": "L19"
+    }
+  ],
+  "edges": [
+    {
+      "source": "mnt_data_local_repos_playback_mcp_security_md",
+      "target": "playback_mcp_security_security_policy",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "SECURITY.md",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "playback_mcp_security_security_policy",
+      "target": "playback_mcp_security_supported_versions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "SECURITY.md",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "playback_mcp_security_security_policy",
+      "target": "playback_mcp_security_reporting_a_vulnerability",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "SECURITY.md",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "playback_mcp_security_security_policy",
+      "target": "playback_mcp_security_scope_notes",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "SECURITY.md",
+      "source_location": "L19",
+      "weight": 1.0
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0
+}
