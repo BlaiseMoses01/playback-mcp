@@ -1,0 +1,95 @@
+{
+  "nodes": [
+    {
+      "id": "mnt_data_local_repos_playback_mcp_github_pull_request_template_md",
+      "label": "pull_request_template.md",
+      "file_type": "document",
+      "source_file": ".github/pull_request_template.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "github_pull_request_template_summary",
+      "label": "Summary",
+      "file_type": "document",
+      "source_file": ".github/pull_request_template.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "github_pull_request_template_changes",
+      "label": "Changes",
+      "file_type": "document",
+      "source_file": ".github/pull_request_template.md",
+      "source_location": "L5"
+    },
+    {
+      "id": "github_pull_request_template_type_of_change",
+      "label": "Type of change",
+      "file_type": "document",
+      "source_file": ".github/pull_request_template.md",
+      "source_location": "L11"
+    },
+    {
+      "id": "github_pull_request_template_testing",
+      "label": "Testing",
+      "file_type": "document",
+      "source_file": ".github/pull_request_template.md",
+      "source_location": "L18"
+    },
+    {
+      "id": "github_pull_request_template_checklist",
+      "label": "Checklist",
+      "file_type": "document",
+      "source_file": ".github/pull_request_template.md",
+      "source_location": "L24"
+    }
+  ],
+  "edges": [
+    {
+      "source": "mnt_data_local_repos_playback_mcp_github_pull_request_template_md",
+      "target": "github_pull_request_template_summary",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".github/pull_request_template.md",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "mnt_data_local_repos_playback_mcp_github_pull_request_template_md",
+      "target": "github_pull_request_template_changes",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".github/pull_request_template.md",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "mnt_data_local_repos_playback_mcp_github_pull_request_template_md",
+      "target": "github_pull_request_template_type_of_change",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".github/pull_request_template.md",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "mnt_data_local_repos_playback_mcp_github_pull_request_template_md",
+      "target": "github_pull_request_template_testing",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".github/pull_request_template.md",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "mnt_data_local_repos_playback_mcp_github_pull_request_template_md",
+      "target": "github_pull_request_template_checklist",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".github/pull_request_template.md",
+      "source_location": "L24",
+      "weight": 1.0
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

@@ -26,3 +26,6 @@ npm-debug.log*
 
 # Claude Code local (per-machine) settings
 .claude/settings.local.json
+
+# graphify dependency-graph build output (curated subset is synced into the second brain)
+graphify-out/

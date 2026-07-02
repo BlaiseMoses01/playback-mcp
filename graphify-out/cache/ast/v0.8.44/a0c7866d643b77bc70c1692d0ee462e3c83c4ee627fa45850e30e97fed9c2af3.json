@@ -1,0 +1,95 @@
+{
+  "nodes": [
+    {
+      "id": "mnt_data_local_repos_playback_mcp_claude_md",
+      "label": "CLAUDE.md",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "playback_mcp_claude_claude_md",
+      "label": "CLAUDE.md",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "playback_mcp_claude_what_this_is",
+      "label": "What this is",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L5"
+    },
+    {
+      "id": "playback_mcp_claude_commands",
+      "label": "Commands",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L21"
+    },
+    {
+      "id": "playback_mcp_claude_architecture",
+      "label": "Architecture",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L33"
+    },
+    {
+      "id": "playback_mcp_claude_gotchas",
+      "label": "Gotchas",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L56"
+    }
+  ],
+  "edges": [
+    {
+      "source": "mnt_data_local_repos_playback_mcp_claude_md",
+      "target": "playback_mcp_claude_claude_md",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "playback_mcp_claude_claude_md",
+      "target": "playback_mcp_claude_what_this_is",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "playback_mcp_claude_claude_md",
+      "target": "playback_mcp_claude_commands",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "playback_mcp_claude_claude_md",
+      "target": "playback_mcp_claude_architecture",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "playback_mcp_claude_claude_md",
+      "target": "playback_mcp_claude_gotchas",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L56",
+      "weight": 1.0
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0
+}
