@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-07-03
+
+### Added
+
+- A standalone **broker daemon** (`playback-mcp-broker`) that owns the localhost port
+  and multiplexes many `playback-mcp` servers onto the one extension. Each server
+  connects as a session-tagged client (auto-spawning the broker if it isn't running),
+  so multiple concurrent Claude sessions can each drive their own YouTube tab in
+  parallel. The broker routes commands and events by `sessionId` and idle-exits after
+  its last client disconnects.
+
 ## [0.2.0] - 2026-07-03
 
 ### Added
@@ -43,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   workflows; Dependabot for GitHub Actions and npm; husky + lint-staged pre-commit hooks.
 - Project docs: README, CONTRIBUTING, SECURITY, AGENTS/CLAUDE guidance, and a PR template.
 
-[Unreleased]: https://github.com/BlaiseMoses01/playback-mcp/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/BlaiseMoses01/playback-mcp/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.1
 [0.2.0]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.0
 [0.1.0]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.1.0
