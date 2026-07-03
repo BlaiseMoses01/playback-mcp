@@ -13,7 +13,8 @@
   "bugs": "https://github.com/BlaiseMoses01/playback-mcp/issues",
   "type": "module",
   "bin": {
-    "playback-mcp": "dist/index.js"
+    "playback-mcp": "dist/index.js",
+    "playback-mcp-broker": "dist/broker.js"
   },
   "files": [
     "dist"

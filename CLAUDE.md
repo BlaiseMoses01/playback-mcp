@@ -4,10 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A local-first, two-part system for controlling YouTube playback from MCP clients:
+A local-first system for controlling YouTube playback from MCP clients. Many Claude
+sessions can run at once: each `playback-mcp` process connects to a shared **broker daemon**
+that owns the localhost port, and each session (identified by a `sessionId`) drives its own
+YouTube tab, so sessions play different videos in parallel.
 
 ```
-Claude Code ──stdio──▶ playback-mcp ──ws://127.0.0.1:8765──▶ Playback MCP extension ──▶ <video>
+Claude A ──stdio──▶ playback-mcp(sess A) ─┐                              ┌─ tab A ──▶ <video X>
+Claude B ──stdio──▶ playback-mcp(sess B) ─┼─▶ broker (ws://127.0.0.1:8765) ─▶ extension ─┼─ tab B ──▶ <video Y>
+Claude C ──stdio──▶ playback-mcp(sess C) ─┘                              └─ tab C ──▶ <video Z>
 ```
 
 It's an npm **workspace monorepo** (`server` + `extension`); ESM throughout. Run all
@@ -35,18 +40,20 @@ npm run smoke          # E2E over real MCP stdio, no browser needed
 ```
 server/src/
   index.ts        # MCP server entry (bin: playback-mcp) — registers tools over stdio
-  bridge.ts       # localhost WebSocket bridge to the extension; owns the exclusive port
-  db.ts           # saved-video library on top of node:sqlite
+  broker.ts       # standalone daemon (bin: playback-mcp-broker) that owns the localhost port
+                  #   and multiplexes many servers onto the one extension, routing by sessionId
+  bridge.ts       # session-tagged WebSocket client to the broker (auto-spawns it if not running)
+  db.ts           # saved-video library on top of node:sqlite (shared WAL DB across servers)
   timeparse.ts    # pure: parse/format times, rates, volumes from agent-supplied strings
   transcript.ts   # pure: normalize/format/search caption payloads (unit-tested)
   captions.ts     # fetches captions from YouTube (innertube ANDROID /player → timedtext json3)
   tools/          # MCP tool implementations (playback, library, loop, sequence, transcript, util)
 extension/src/
-  background.ts   # service worker: WebSocket client to the server
-  content.ts      # content script: drives the page's <video> element
+  background.ts   # service worker: WS client to the broker; keeps a managed tab per sessionId
+  content.ts      # content script: drives the page's <video> element (one instance per tab)
   esbuild.mjs     # bundles to IIFE for Chrome; reads __WS_PORT__ at build time
 scripts/
-  mcp-poke.mjs    # smoke test: spawns the server + a fake extension over stdio
+  mcp-poke.mjs    # smoke test: spawns the broker + two servers + a fake extension over stdio
   fake-extension.mjs
 ```
 
@@ -59,7 +66,12 @@ scripts/
   `/player` with an ANDROID client context still returns POT-exempt caption URLs.
   The extension only supplies the current videoId via `get_state`. The smoke test
   skips the transcript tools so it stays offline-safe.
-- The bridge binds an exclusive localhost port — only one server runs at a time.
+- One **broker** daemon owns the localhost port; every `playback-mcp` server connects to it
+  as a client and auto-spawns it if it isn't running (a duplicate broker exits on
+  `EADDRINUSE`). The broker idle-exits ~60s after its last client disconnects. Each server
+  has a unique `sessionId`; the broker tags commands with it and the extension keeps one
+  managed tab per session, so sessions drive different videos in parallel. Events are routed
+  back only to the owning session.
 
 ## Gotchas
 
