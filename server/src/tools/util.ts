@@ -38,6 +38,7 @@ export interface PlayerState {
   rate: number;
   volume: number;
   loop: Record<string, unknown> | null;
+  sequence: Record<string, unknown> | null;
   adShowing: boolean;
 }
 

@@ -15,7 +15,7 @@ Ask Claude things like:
 
 > _"open the stairway lesson and loop 0:15–0:42 at 75% speed, three passes"_
 
-and it happens in your actual Chrome tab — play, pause, seek, speed, volume, A-B section loops with per-pass speed ramps, named timestamps, and a searchable library of saved videos.
+and it happens in your actual Chrome tab — play, pause, seek, speed, volume, A-B section loops with per-pass speed ramps, clip sequences, named timestamps, transcript search, and a searchable library of saved videos.
 
 Two parts, both local:
 
@@ -70,8 +70,12 @@ npm run build
 | `set_volume`                                              | Absolute 0–100 or relative `"+10"`/`"-10"`                                                                                         |
 | `loop_section`                                            | Loop a section N times, optionally with per-pass speeds (e.g. 0.5 → 0.75 → 1.0). Returns immediately; the loop runs in the browser |
 | `stop_loop`                                               | Cancel the active loop                                                                                                             |
+| `play_sequence`                                           | Play a list of clips back-to-back, skipping the gaps between them. Returns immediately; runs in the browser                        |
+| `stop_sequence`                                           | Cancel the active clip sequence                                                                                                    |
 | `save_video` / `find_videos` / `open_video`               | Build and search a library of saved videos; open them in a managed tab                                                             |
 | `save_timestamp` / `list_timestamps` / `delete_timestamp` | Named positions and loopable sections per video                                                                                    |
+| `get_transcript`                                          | Caption transcript of the open video as `[m:ss] text` lines; optional `start`/`end` window and `lang`                              |
+| `search_transcript`                                       | Find a word/phrase in the transcript; returns timestamps with context — pair with `seek` to jump to a topic                        |
 | `get_state`                                               | Full player state; works even when the extension is disconnected                                                                   |
 
 Time inputs are forgiving: `"90"`, `"1:30"`, `"1m30s"`, `"1:02:03"`; speeds accept `"0.75x"`.
@@ -90,6 +94,7 @@ Time inputs are forgiving: `"90"`, `"1:30"`, `"1m30s"`, `"1:02:03"`; speeds acce
 - **"Chrome extension is not connected"** — make sure the extension is loaded and Chrome is running; it reconnects automatically within a few seconds.
 - **"port 8765 is already in use"** — only one playback-mcp MCP server can run at a time (the extension speaks to one server). Close the other session.
 - **Tools work but nothing happens on screen** — confirm the managed YouTube tab still exists; `open_video` creates one.
+- **"This video has no captions available" / transcript errors** — `get_transcript` and `search_transcript` fetch captions straight from YouTube for the currently open video; some videos genuinely have no captions, and `lang` must match an available track.
 
 ## Development
 

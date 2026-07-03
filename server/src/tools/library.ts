@@ -202,6 +202,7 @@ export function registerLibraryTools(server: McpServer, bridge: Bridge): void {
         extension: 'connected',
         player: { ...state, currentTime: formatTime(state.currentTime), savedTitle: saved?.title },
         lastLoopEvent: bridge.loopStatus,
+        lastSequenceEvent: bridge.sequenceStatus,
       });
     }),
   );

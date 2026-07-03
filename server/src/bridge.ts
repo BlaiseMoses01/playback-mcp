@@ -25,6 +25,8 @@ export class Bridge {
   private nextId = 1;
   /** Last loop progress/done event, surfaced via get_state. */
   loopStatus: Record<string, unknown> | null = null;
+  /** Last sequence progress/done event, surfaced via get_state. */
+  sequenceStatus: Record<string, unknown> | null = null;
 
   start(port = 8765): void {
     const wss = new WebSocketServer({ host: '127.0.0.1', port });
@@ -103,8 +105,14 @@ export class Bridge {
           this.loopStatus = msg;
           log(msg.event, JSON.stringify(msg));
           break;
+        case 'sequence_progress':
+        case 'sequence_done':
+          this.sequenceStatus = msg;
+          log(msg.event, JSON.stringify(msg));
+          break;
         case 'video_changed':
           this.loopStatus = null;
+          this.sequenceStatus = null;
           log('video changed:', msg.videoId, msg.title ?? '');
           break;
         default:
