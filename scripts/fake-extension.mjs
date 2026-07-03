@@ -50,13 +50,12 @@ ws.on('message', (data) => {
   if (!msg.id || !msg.cmd) return;
   const sessionId = msg.sessionId ?? 'default';
   const state = stateFor(sessionId);
-  // strip control chars from wire-sourced values before logging (no log injection)
-  const clean = (v) => String(v).replace(/[^\x20-\x7e]/g, '');
+  // JSON.stringify wire-sourced values before logging so they can't inject log lines
   console.log(
     '[fake-ext] cmd:',
-    clean(msg.cmd),
+    JSON.stringify(msg.cmd),
     'session',
-    clean(sessionId).slice(0, 8),
+    JSON.stringify(String(sessionId).slice(0, 8)),
     JSON.stringify(msg.params ?? {}),
   );
   switch (msg.cmd) {
