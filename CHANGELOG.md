@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-07-03
+
+### Security
+
+- The broker now enforces an Origin allow-list at the WebSocket handshake: only the
+  companion extension's `chrome-extension://` origin and origin-less Node clients
+  (the MCP bridge) may connect. Web-page origins are rejected with a 403, so
+  arbitrary pages can no longer connect to the localhost port and drive playback
+  ([#18](https://github.com/BlaiseMoses01/playback-mcp/issues/18)).
+- The extension validates wire-sourced `sessionId`s as UUIDs before using them as
+  tab-map keys (closes a CodeQL remote-property-injection alert).
+- The smoke-test fake extension sanitizes logged wire values with `JSON.stringify`
+  (closes a CodeQL log-injection alert).
+
 ## [0.2.1] - 2026-07-03
 
 ### Added
@@ -54,7 +68,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   workflows; Dependabot for GitHub Actions and npm; husky + lint-staged pre-commit hooks.
 - Project docs: README, CONTRIBUTING, SECURITY, AGENTS/CLAUDE guidance, and a PR template.
 
-[Unreleased]: https://github.com/BlaiseMoses01/playback-mcp/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/BlaiseMoses01/playback-mcp/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.2
 [0.2.1]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.1
 [0.2.0]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.0
 [0.1.0]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.1.0
