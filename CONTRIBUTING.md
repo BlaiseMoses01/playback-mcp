@@ -54,7 +54,10 @@ attached to the GitHub Release as a zip. `.github/workflows/publish.yml` does th
 actual publishing — it triggers on a **published GitHub Release** and expects the
 version to already be bumped and tagged on `main` beforehand.
 
-1. Make sure `main` is green (CI passing) and has everything you want in the release.
+`main` is where releases are tagged from, but day-to-day work happens on `dev` — get
+the release ready there and merge it in.
+
+1. On `dev`, make sure everything you want in the release is in and CI is green.
 2. Bump the version in `server/package.json` (semver; this project is pre-1.0, so
    backwards-compatible additions bump the minor version, e.g. `0.1.0` → `0.2.0`).
 3. In `CHANGELOG.md`, rename `[Unreleased]` to `[X.Y.Z] - YYYY-MM-DD` (today's date),
@@ -62,15 +65,16 @@ version to already be bumped and tagged on `main` beforehand.
    at the bottom of the file (`[Unreleased]` compares from the new tag; add a
    `[X.Y.Z]` link to the new release tag).
 4. Commit both files together, e.g. `release: playback-mcp vX.Y.Z` (see `9a1ca94` for
-   the precedent). Push to `main` (directly or via PR).
-5. Cut the release, which also creates the tag:
+   the precedent), and push `dev`.
+5. Open a PR from `dev` into `main` (see the `pr` skill) and merge it once it's green.
+6. Cut the release from `main`, which also creates the tag:
    ```sh
    gh release create vX.Y.Z --target main --title "vX.Y.Z" --notes "<paste the CHANGELOG section for this version>"
    ```
-6. Publishing the release triggers `publish.yml`: it runs the test suite, then
+7. Publishing the release triggers `publish.yml`: it runs the test suite, then
    `npm publish --workspace server --provenance --access public` (needs the
    `NPM_TOKEN` repo secret), and separately builds the extension and uploads
    `playback-mcp-extension-vX.Y.Z.zip` to the release.
-7. Verify: `npm view playback-mcp version` shows the new version, the release page
+8. Verify: `npm view playback-mcp version` shows the new version, the release page
    has the extension zip attached, and a clean `npm i -g playback-mcp` in an empty
    directory installs and runs.
