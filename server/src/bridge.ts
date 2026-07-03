@@ -1,4 +1,7 @@
-import { WebSocketServer, WebSocket } from 'ws';
+import { WebSocket } from 'ws';
+import { spawn } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import { randomUUID } from 'node:crypto';
 
 const log = (...args: unknown[]) => console.error('[bridge]', ...args);
 
@@ -18,49 +21,89 @@ interface Pending {
   timer: NodeJS.Timeout;
 }
 
-/** WebSocket hub the Chrome extension connects to. One live socket; newest connection wins. */
+/**
+ * Client link to the shared broker daemon. Each MCP server process owns one Bridge with a unique
+ * sessionId; the broker relays this session's commands to the extension (which drives a dedicated
+ * tab per session) and routes acks/events back. The broker is auto-spawned if it isn't running.
+ * Public surface is unchanged from the old in-process WebSocket server, so the tools don't change.
+ */
 export class Bridge {
   private socket: WebSocket | null = null;
   private pending = new Map<string, Pending>();
   private nextId = 1;
+  private readonly sessionId = randomUUID();
+  private port = 8765;
+  private backoffMs = 300;
+  private extensionOnline = false;
+  private brokerSpawned = false;
   /** Last loop progress/done event, surfaced via get_state. */
   loopStatus: Record<string, unknown> | null = null;
   /** Last sequence progress/done event, surfaced via get_state. */
   sequenceStatus: Record<string, unknown> | null = null;
 
   start(port = 8765): void {
-    const wss = new WebSocketServer({ host: '127.0.0.1', port });
-    wss.on('error', (err: NodeJS.ErrnoException) => {
-      if (err.code === 'EADDRINUSE') {
-        log(
-          `port ${port} is already in use — is another session running this MCP server? Exiting.`,
-        );
-        process.exit(1);
+    this.port = port;
+    this.connect();
+  }
+
+  private connect(): void {
+    let ws: WebSocket;
+    try {
+      ws = new WebSocket(`ws://127.0.0.1:${this.port}`);
+    } catch {
+      this.ensureBroker();
+      this.scheduleReconnect();
+      return;
+    }
+    this.socket = ws;
+    ws.on('open', () => {
+      this.backoffMs = 300;
+      this.brokerSpawned = false; // a later outage may need to respawn
+      ws.send(JSON.stringify({ event: 'hello', role: 'mcp', sessionId: this.sessionId }));
+      log(`connected to broker on ws://127.0.0.1:${this.port} (session ${this.sessionId})`);
+    });
+    ws.on('message', (data) => this.onMessage(String(data)));
+    ws.on('close', () => {
+      if (this.socket === ws) {
+        this.socket = null;
+        this.extensionOnline = false;
       }
-      log('websocket server error:', err.message);
+      this.scheduleReconnect();
     });
-    wss.on('connection', (ws) => {
-      if (this.socket && this.socket.readyState === WebSocket.OPEN) this.socket.close();
-      this.socket = ws;
-      log('extension connected');
-      ws.on('message', (data) => this.onMessage(String(data)));
-      ws.on('close', () => {
-        if (this.socket === ws) {
-          this.socket = null;
-          log('extension disconnected');
-        }
+    ws.on('error', () => {
+      // Broker likely not up yet — spawn it; a 'close' follows and triggers the reconnect.
+      this.ensureBroker();
+    });
+  }
+
+  private scheduleReconnect(): void {
+    setTimeout(() => this.connect(), this.backoffMs).unref();
+    this.backoffMs = Math.min(this.backoffMs * 2, 3000);
+  }
+
+  /** Start the broker daemon if this process can't reach one. Idempotent per outage; a duplicate
+   * broker exits itself on EADDRINUSE, so a spurious spawn is harmless. */
+  private ensureBroker(): void {
+    if (this.brokerSpawned) return;
+    this.brokerSpawned = true;
+    try {
+      const brokerPath = fileURLToPath(new URL('./broker.js', import.meta.url));
+      const child = spawn(process.execPath, [brokerPath], {
+        detached: true,
+        stdio: 'ignore',
+        env: process.env,
       });
-      ws.on('error', (err) => log('socket error:', err.message));
-    });
-    // App-level ping keeps the MV3 service worker alive (Chrome 116+: WS activity resets the idle timer).
-    setInterval(() => {
-      if (this.connected) this.socket!.send(JSON.stringify({ event: 'ping' }));
-    }, 20_000).unref();
-    log(`listening on ws://127.0.0.1:${port}`);
+      child.unref();
+      log('spawned broker daemon');
+    } catch (e) {
+      log('failed to spawn broker:', (e as Error).message);
+    }
   }
 
   get connected(): boolean {
-    return this.socket !== null && this.socket.readyState === WebSocket.OPEN;
+    return (
+      this.socket !== null && this.socket.readyState === WebSocket.OPEN && this.extensionOnline
+    );
   }
 
   /** Send a command and await the extension's ack. Rejects immediately when offline. */
@@ -95,10 +138,13 @@ export class Bridge {
     }
     if (msg.event) {
       switch (msg.event) {
-        case 'pong':
+        case 'extension_online':
+          this.extensionOnline = true;
+          log('extension online');
           break;
-        case 'hello':
-          log('extension hello, protocol version', msg.version);
+        case 'extension_offline':
+          this.extensionOnline = false;
+          log('extension offline');
           break;
         case 'loop_progress':
         case 'loop_done':

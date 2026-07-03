@@ -17,10 +17,13 @@ Ask Claude things like:
 
 and it happens in your actual Chrome tab — play, pause, seek, speed, volume, A-B section loops with per-pass speed ramps, clip sequences, named timestamps, transcript search, and a searchable library of saved videos.
 
-Two parts, both local:
+Local, and multi-session: run several Claude sessions at once and each drives its own
+YouTube tab in parallel. Every `playback-mcp` connects to a shared broker (auto-started on
+first use) that owns the localhost port and routes each session to its own tab:
 
 ```
-Claude Code ──stdio──▶ playback-mcp ──ws://127.0.0.1:8765──▶ Playback MCP extension ──▶ <video>
+Claude A ──stdio──▶ playback-mcp ─┐                              ┌─ tab A ──▶ <video X>
+Claude B ──stdio──▶ playback-mcp ─┼─▶ broker (127.0.0.1:8765) ─▶ extension ─┼─ tab B ──▶ <video Y>
 ```
 
 **Bot-safe by design:** the extension only reads/writes the `<video>` element's properties (currentTime, playbackRate, volume, play/pause). It never clicks UI, never scrapes, never automates navigation beyond opening a watch URL. This is meant to minimize any malicious user flagging or bot detection issues.
@@ -92,8 +95,8 @@ Time inputs are forgiving: `"90"`, `"1:30"`, `"1m30s"`, `"1:02:03"`; speeds acce
 ## Troubleshooting
 
 - **"Chrome extension is not connected"** — make sure the extension is loaded and Chrome is running; it reconnects automatically within a few seconds.
-- **"port 8765 is already in use"** — only one playback-mcp MCP server can run at a time (the extension speaks to one server). Close the other session.
-- **Tools work but nothing happens on screen** — confirm the managed YouTube tab still exists; `open_video` creates one.
+- **Multiple Claude sessions** — supported: each runs its own `playback-mcp` and drives its own YouTube tab. They share a background broker daemon (`playback-mcp-broker`) that starts automatically on first use and shuts down ~a minute after the last session closes.
+- **Tools work but nothing happens on screen** — confirm this session's managed YouTube tab still exists; `open_video` creates one. Each session controls only its own tab.
 - **"This video has no captions available" / transcript errors** — `get_transcript` and `search_transcript` fetch captions straight from YouTube for the currently open video; some videos genuinely have no captions, and `lang` must match an available track.
 
 ## Development

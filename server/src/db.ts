@@ -18,9 +18,32 @@ function defaultDataDir(): string {
 const dataDir = defaultDataDir();
 mkdirSync(dataDir, { recursive: true });
 
-const db = new DatabaseSync(path.join(dataDir, 'library.db'));
-db.exec('PRAGMA journal_mode = WAL');
-db.exec(`
+// Multiple MCP servers (one per Claude session) share this file; the busy timeout makes
+// concurrent opens/writes wait for the lock instead of failing with "database is locked".
+const db = new DatabaseSync(path.join(dataDir, 'library.db'), { timeout: 5000 });
+
+/**
+ * Retry a statement on SQLITE_BUSY. SQLite bypasses the busy timeout during a journal-mode
+ * switch (to avoid deadlock), so two servers racing to set up a fresh DB can see an immediate
+ * "database is locked" — retry the one-time setup for a few seconds with a synchronous backoff.
+ */
+function execRetrying(sql: string): void {
+  const deadline = Date.now() + 5000;
+  for (;;) {
+    try {
+      db.exec(sql);
+      return;
+    } catch (e) {
+      const busy = /locked|busy/i.test((e as Error).message);
+      if (!busy || Date.now() >= deadline) throw e;
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 50); // sleep 50ms
+    }
+  }
+}
+
+execRetrying('PRAGMA busy_timeout = 5000');
+execRetrying('PRAGMA journal_mode = WAL');
+execRetrying(`
   CREATE TABLE IF NOT EXISTS videos (
     id             INTEGER PRIMARY KEY,
     youtube_id     TEXT NOT NULL UNIQUE,
