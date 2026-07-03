@@ -45,6 +45,13 @@ function scheduleReconnect(): void {
   backoffMs = Math.min(backoffMs * 2, 5000);
 }
 
+// sessionIds are server-minted UUIDs (bridge.ts). Validate the format before using one as an
+// object key so a malformed value from the wire can't be injected into the session->tab map.
+const SESSION_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function isSessionId(v: unknown): v is string {
+  return typeof v === 'string' && SESSION_ID_RE.test(v);
+}
+
 async function handleMessage(msg: {
   id?: string;
   cmd?: string;
@@ -56,11 +63,11 @@ async function handleMessage(msg: {
     wsSend({ event: 'pong' });
     return;
   }
-  if (msg.event === 'session_gone' && typeof msg.sessionId === 'string') {
+  if (msg.event === 'session_gone' && isSessionId(msg.sessionId)) {
     await unbindSession(msg.sessionId);
     return;
   }
-  if (!msg.id || !msg.cmd || typeof msg.sessionId !== 'string') return;
+  if (!msg.id || !msg.cmd || !isSessionId(msg.sessionId)) return;
   try {
     const result = await execute(msg.sessionId, msg.cmd, msg.params ?? {});
     wsSend({ id: msg.id, ok: true, result });
