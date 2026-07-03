@@ -48,7 +48,21 @@ function scheduleIdleExit(): void {
   idleTimer.unref();
 }
 
-const wss = new WebSocketServer({ host: '127.0.0.1', port: PORT });
+function originAllowed(origin?: string): boolean {
+  // Node clients (MCP bridge, fake-extension) send no Origin. Browsers ALWAYS send one and
+  // cannot forge it, so a web page's http/https Origin is rejected while the extension's
+  // chrome-extension origin passes. This is the trust boundary — see issue #18.
+  if (!origin) return true;
+  if (origin.startsWith('chrome-extension://')) return true;
+  log('rejected connection from origin', origin);
+  return false;
+}
+
+const wss = new WebSocketServer({
+  host: '127.0.0.1',
+  port: PORT,
+  verifyClient: (info: { origin?: string }) => originAllowed(info.origin),
+});
 wss.on('error', (err: NodeJS.ErrnoException) => {
   if (err.code === 'EADDRINUSE') {
     log(`port ${PORT} already in use — another broker owns it. Exiting.`);

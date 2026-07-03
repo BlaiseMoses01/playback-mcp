@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { mkdtempSync, rmSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import WebSocket from 'ws';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 // Hermetic library so the smoke test never touches the real user DB.
@@ -121,6 +122,22 @@ try {
   await A.call('get_state');
   await A.call('pause');
   await B.call('get_state');
+
+  // Security (#18): a browser web origin must be rejected at the WS handshake. Node clients
+  // (the MCP bridge, the fake extension) send no Origin and are allowed; a web page sends an
+  // unforgeable http/https Origin and must be turned away with a 403 (no 'open').
+  const port = process.env.YT_BRIDGE_PORT ?? 8765;
+  const evilAccepted = await new Promise((resolve) => {
+    const ws = new WebSocket(`ws://127.0.0.1:${port}`, { origin: 'https://evil.com' });
+    ws.on('open', () => {
+      ws.close();
+      resolve(true);
+    });
+    ws.on('error', () => resolve(false));
+  });
+  if (evilAccepted)
+    throw new Error('SECURITY: broker accepted a WS connection from origin https://evil.com');
+  console.log('\n=== [security] web-origin handshake rejected [ok] ===');
 
   fakeExt = spawn('node', ['scripts/fake-extension.mjs'], {
     cwd: root,

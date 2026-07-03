@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A local-first system for controlling YouTube playback from MCP clients. Many Claude
+A local-first system for controlling browser video playback from MCP clients. Many Claude
 sessions can run at once: each `playback-mcp` process connects to a shared **broker daemon**
 that owns the localhost port, and each session (identified by a `sessionId`) drives its own
 YouTube tab, so sessions play different videos in parallel.
@@ -81,3 +81,7 @@ scripts/
 - The extension bundle captures port 8765 by default; changing `YT_BRIDGE_PORT`
   requires rebuilding the extension with the same env var.
 - TypeScript is NodeNext ESM in `server/` — intra-repo imports use explicit `.js` extensions.
+- The broker enforces an Origin allow-list at the WS handshake (`broker.ts`, issue #18):
+  only the extension's `chrome-extension://` origin and origin-less Node clients (the MCP
+  bridge) may connect. A web page's http/https Origin is rejected with a 403, so arbitrary
+  pages can't drive playback.
