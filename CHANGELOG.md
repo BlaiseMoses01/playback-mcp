@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-03
+
+### Added
+
+- `play_sequence` / `stop_sequence`: play a list of clips back-to-back, skipping the
+  gaps between them (e.g. a "power user tour" of just the moments that matter).
+  Returns immediately and runs in the browser, like `loop_section`; progress is
+  surfaced via `get_state`.
+- `get_transcript` / `search_transcript`: fetch and search the caption transcript of
+  the currently open video. Transcripts are fetched by the server directly from
+  YouTube (an ANDROID innertube client context, not the extension), formatted as
+  `[m:ss] text` lines with an optional time window, and are case-insensitively
+  searchable with surrounding context.
+
+### Changed
+
+- `get_state` / player state now reports `sequence` alongside `loop`, and the last
+  sequence progress/done event alongside the last loop event.
+
 ## [0.1.0] - 2026-06-20
 
 ### Added
@@ -24,5 +43,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   workflows; Dependabot for GitHub Actions and npm; husky + lint-staged pre-commit hooks.
 - Project docs: README, CONTRIBUTING, SECURITY, AGENTS/CLAUDE guidance, and a PR template.
 
-[Unreleased]: https://github.com/BlaiseMoses01/playback-mcp/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/BlaiseMoses01/playback-mcp/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.0
 [0.1.0]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.1.0

@@ -111,7 +111,16 @@ try {
   await call('play', { from: 'intro solo' });
   await call('loop_section', { label: 'intro solo', times: 3, speeds: [0.5, 0.75, 1.0] });
   await call('stop_loop');
+  await call('play_sequence', {
+    clips: [
+      { start: 'intro solo', end: '0:42', label: 'intro' },
+      { start: '1:00', end: '1:30' },
+    ],
+  });
+  await call('stop_sequence');
   await call('get_state');
+  // get_transcript/search_transcript are not exercised here: they fetch from YouTube
+  // directly (not via the bridge), and the smoke test must stay offline-safe.
   await call('delete_timestamp', { label: 'verse riff' });
   await call('seek', { to: 'nonexistent label' }); // expect graceful TOOL-ERROR listing saved labels
 

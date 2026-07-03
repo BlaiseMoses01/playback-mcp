@@ -13,6 +13,7 @@ const state = {
   rate: 1,
   volume: 0.8,
   loop: null,
+  sequence: null,
   adShowing: false,
 };
 
@@ -53,6 +54,13 @@ ws.on('message', (data) => {
       break;
     case 'loop_cancel':
       state.loop = null;
+      state.paused = true;
+      break;
+    case 'sequence':
+      state.sequence = { ...msg.params, index: 1 };
+      break;
+    case 'sequence_cancel':
+      state.sequence = null;
       state.paused = true;
       break;
   }

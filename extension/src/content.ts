@@ -12,7 +12,20 @@ interface LoopState {
   timer: number;
 }
 
+interface SequenceClip {
+  start: number;
+  end: number;
+  label?: string;
+}
+
+interface SequenceState {
+  clips: SequenceClip[];
+  index: number; // 0-based index of the clip currently playing
+  timer: number;
+}
+
 let loop: LoopState | null = null;
+let sequence: SequenceState | null = null;
 let lastHref = location.href;
 let lastAdShowing = false;
 
@@ -64,6 +77,13 @@ function state(): Record<string, unknown> {
           rates: loop.rates,
         }
       : null,
+    sequence: sequence
+      ? {
+          clips: sequence.clips,
+          index: sequence.index + 1,
+          of: sequence.clips.length,
+        }
+      : null,
     adShowing: adShowing(),
   };
 }
@@ -80,6 +100,7 @@ function startLoop(params: {
   rates?: number[];
 }): Record<string, unknown> {
   cancelLoop(false);
+  cancelSequence(false);
   const v = getVideo();
   loop = {
     start: params.start,
@@ -144,6 +165,68 @@ function cancelLoop(restore: boolean): void {
   }
 }
 
+function startSequence(params: { clips: SequenceClip[] }): Record<string, unknown> {
+  cancelLoop(false);
+  cancelSequence(false);
+  const v = getVideo();
+  sequence = { clips: params.clips, index: 0, timer: 0 };
+  v.currentTime = sequence.clips[0].start;
+  void v.play();
+  // 50ms polling: `timeupdate` only fires ~every 250ms, too sloppy for clip boundaries.
+  sequence.timer = window.setInterval(sequenceTick, 50);
+  emit({
+    event: 'sequence_progress',
+    index: 1,
+    of: sequence.clips.length,
+    label: sequence.clips[0].label,
+  });
+  return state();
+}
+
+function sequenceTick(): void {
+  if (!sequence) return;
+  if (adShowing()) return; // an ad owns the video element right now — suspend boundary checks
+  let v: HTMLVideoElement;
+  try {
+    v = getVideo();
+  } catch {
+    cancelSequence(false);
+    return;
+  }
+  const clip = sequence.clips[sequence.index];
+  if (v.currentTime < clip.end - 0.03) return;
+  sequence.index++;
+  if (sequence.index < sequence.clips.length) {
+    const next = sequence.clips[sequence.index];
+    v.currentTime = next.start;
+    emit({
+      event: 'sequence_progress',
+      index: sequence.index + 1,
+      of: sequence.clips.length,
+      label: next.label,
+    });
+  } else {
+    const total = sequence.clips.length;
+    window.clearInterval(sequence.timer);
+    sequence = null;
+    v.pause();
+    emit({ event: 'sequence_done', clips: total });
+  }
+}
+
+function cancelSequence(restore: boolean): void {
+  if (!sequence) return;
+  window.clearInterval(sequence.timer);
+  sequence = null;
+  if (restore) {
+    try {
+      getVideo().pause();
+    } catch {
+      // no video element anymore — nothing to restore
+    }
+  }
+}
+
 function handle(cmd: string, params: Record<string, any>): Record<string, unknown> {
   const v = getVideo();
   switch (cmd) {
@@ -155,6 +238,7 @@ function handle(cmd: string, params: Record<string, any>): Record<string, unknow
       return state();
     case 'seek':
       cancelLoop(false); // a manual seek supersedes any active loop
+      cancelSequence(false); // ...and any active sequence
       v.currentTime = Number(params.seconds);
       return state();
     case 'set_rate':
@@ -172,6 +256,11 @@ function handle(cmd: string, params: Record<string, any>): Record<string, unknow
     case 'loop_cancel':
       cancelLoop(true);
       return state();
+    case 'sequence':
+      return startSequence(params as { clips: SequenceClip[] });
+    case 'sequence_cancel':
+      cancelSequence(true);
+      return state();
     case 'get_state':
       return state();
     default:
@@ -182,17 +271,18 @@ function handle(cmd: string, params: Record<string, any>): Record<string, unknow
 chrome.runtime.onMessage.addListener(
   (msg: { cmd?: string; params?: Record<string, unknown> }, _sender, sendResponse) => {
     if (!msg?.cmd) return;
-    try {
-      sendResponse({ ok: true, result: handle(msg.cmd, msg.params ?? {}) });
-    } catch (e: any) {
-      sendResponse({ ok: false, error: String(e?.message ?? e) });
-    }
+    Promise.resolve()
+      .then(() => handle(msg.cmd!, msg.params ?? {}))
+      .then((result) => sendResponse({ ok: true, result }))
+      .catch((e: any) => sendResponse({ ok: false, error: String(e?.message ?? e) }));
+    return true; // sendResponse fires in a microtask, after the listener returns
   },
 );
 
 function onNavigate(): void {
   lastHref = location.href;
   cancelLoop(false);
+  cancelSequence(false);
   emit({ event: 'video_changed', videoId: getVideoId(), title: cleanTitle() });
   // The &autoplay=1 flag is unreliable on watch pages — nudge playback when we requested it.
   if (new URL(location.href).searchParams.get('autoplay') === '1') {

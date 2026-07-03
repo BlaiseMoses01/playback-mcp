@@ -38,7 +38,9 @@ server/src/
   bridge.ts       # localhost WebSocket bridge to the extension; owns the exclusive port
   db.ts           # saved-video library on top of node:sqlite
   timeparse.ts    # pure: parse/format times, rates, volumes from agent-supplied strings
-  tools/          # MCP tool implementations (playback, library, loop, util)
+  transcript.ts   # pure: normalize/format/search caption payloads (unit-tested)
+  captions.ts     # fetches captions from YouTube (innertube ANDROID /player → timedtext json3)
+  tools/          # MCP tool implementations (playback, library, loop, sequence, transcript, util)
 extension/src/
   background.ts   # service worker: WebSocket client to the server
   content.ts      # content script: drives the page's <video> element
@@ -48,9 +50,15 @@ scripts/
   fake-extension.mjs
 ```
 
-- `timeparse.ts` is pure and has unit tests (`timeparse.test.ts`). The bridge, db, and
-  extension code are not unit-tested (they need real sockets / Chrome / the page); use
-  `npm run smoke` for the server path.
+- `timeparse.ts`, `transcript.ts`, and `pickTrack` in `captions.ts` are pure and have
+  unit tests. The bridge, db, and extension code are not unit-tested (they need real
+  sockets / Chrome / the page); use `npm run smoke` for the server path.
+- Transcripts are fetched by the server directly, not by the extension: the web
+  client's caption URLs are POT-gated (200 with an empty body) and innertube's
+  `get_transcript` endpoint is dead (FAILED_PRECONDITION for every client), but
+  `/player` with an ANDROID client context still returns POT-exempt caption URLs.
+  The extension only supplies the current videoId via `get_state`. The smoke test
+  skips the transcript tools so it stays offline-safe.
 - The bridge binds an exclusive localhost port — only one server runs at a time.
 
 ## Gotchas
