@@ -21,10 +21,14 @@ additions bump the minor (`0.1.0` → `0.2.0`), fixes bump the patch.
 
 ## 2. Prep the release commit on `dev`
 
-- Bump `"version"` in `server/package.json`.
-- Run `npm install --package-lock-only` so `package-lock.json` picks up the new version
-  (it tracks the workspace version in two places — grep `"version": "0.1.0"` to confirm
-  both updated).
+- Bump the version in all four places it lives (grep the old version string to confirm
+  none were missed — v0.2.2 shipped with two of these stale):
+  - `"version"` in `server/package.json`
+  - the hardcoded `McpServer` version in `server/src/index.ts` (what `serverInfo`
+    reports over MCP)
+  - `"version"` in `extension/manifest.json` (what `chrome://extensions` shows)
+  - `package-lock.json`: run `npm install --package-lock-only` (it tracks the workspace
+    version in two places — grep to confirm both updated)
 - In `CHANGELOG.md`: rename `## [Unreleased]` to `## [X.Y.Z] - YYYY-MM-DD`, add a fresh
   empty `## [Unreleased]` above it, and update the link refs at the bottom:
   ```

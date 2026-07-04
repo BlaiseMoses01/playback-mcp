@@ -1,6 +1,7 @@
 // Content script: controls the raw HTML5 <video> element on youtube.com and runs the loop engine.
 // Only element properties are read/written (currentTime, playbackRate, volume, play/pause) —
-// never YouTube UI clicks — so nothing here is visible to YouTube's servers.
+// with one exception: YouTube's own skip-ad button is clicked when a skippable ad allows it,
+// which is indistinguishable from a user clicking skip.
 
 interface LoopState {
   start: number;
@@ -39,6 +40,16 @@ function getVideo(): HTMLVideoElement {
 
 function adShowing(): boolean {
   return document.querySelector('#movie_player')?.classList.contains('ad-showing') ?? false;
+}
+
+function trySkipAd(): boolean {
+  const btn = document.querySelector<HTMLElement>(
+    '#movie_player .ytp-skip-ad-button, #movie_player .ytp-ad-skip-button-modern, #movie_player .ytp-ad-skip-button',
+  );
+  // offsetParent is null while the button is hidden behind the pre-skip countdown
+  if (!btn || btn.offsetParent === null) return false;
+  btn.click();
+  return true;
 }
 
 function getVideoId(): string | null {
@@ -300,6 +311,7 @@ document.addEventListener('yt-navigate-finish', onNavigate);
 setInterval(() => {
   if (location.href !== lastHref) onNavigate(); // fallback if yt-navigate-finish ever goes away
   const ad = adShowing();
+  if (ad) trySkipAd();
   if (ad !== lastAdShowing) {
     lastAdShowing = ad;
     emit({ event: 'ad_state', showing: ad });

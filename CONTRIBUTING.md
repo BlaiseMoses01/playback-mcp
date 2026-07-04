@@ -58,14 +58,18 @@ version to already be bumped and tagged on `main` beforehand.
 the release ready there and merge it in.
 
 1. On `dev`, make sure everything you want in the release is in and CI is green.
-2. Bump the version in `server/package.json` (semver; this project is pre-1.0, so
-   backwards-compatible additions bump the minor version, e.g. `0.1.0` → `0.2.0`).
+2. Bump the version everywhere it lives (semver; this project is pre-1.0, so
+   backwards-compatible additions bump the minor version, e.g. `0.1.0` → `0.2.0`):
+   `server/package.json`, the hardcoded `McpServer` version in `server/src/index.ts`,
+   and `extension/manifest.json`. Then run `npm install --package-lock-only` so
+   `package-lock.json` picks up the new version too (it tracks the workspace version
+   in two places). Grep for the old version string to confirm nothing was missed.
 3. In `CHANGELOG.md`, rename `[Unreleased]` to `[X.Y.Z] - YYYY-MM-DD` (today's date),
    add a fresh empty `[Unreleased]` heading above it, and update the link references
    at the bottom of the file (`[Unreleased]` compares from the new tag; add a
    `[X.Y.Z]` link to the new release tag).
-4. Commit both files together, e.g. `release: playback-mcp vX.Y.Z` (see `9a1ca94` for
-   the precedent), and push `dev`.
+4. Commit the version and changelog files together, e.g. `release: playback-mcp vX.Y.Z`
+   (see `9a1ca94` for the precedent), and push `dev`.
 5. Open a PR from `dev` into `main` (see the `pr` skill) and merge it once it's green.
 6. Cut the release from `main`, which also creates the tag:
    ```sh
