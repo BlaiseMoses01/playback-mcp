@@ -154,6 +154,19 @@
         color: var(--text);
         text-decoration: none;
       }
+      .nav-icons {
+        display: inline-flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .nav-icons a {
+        display: inline-flex;
+        align-items: center;
+      }
+      .nav-icons svg {
+        display: block;
+        width: auto;
+      }
       .nav-toggle {
         display: none;
         width: 40px;
@@ -197,6 +210,15 @@
         }
         .nav-links a:hover {
           background: var(--surface);
+        }
+        /* logos sit side by side at the bottom, not stacked */
+        .nav-icons {
+          display: flex;
+          justify-content: center;
+          gap: 22px;
+          margin-top: 6px;
+          padding-top: 12px;
+          border-top: 1px solid var(--border);
         }
       }
 
@@ -740,6 +762,7 @@
       }
       .foot-inner .links {
         display: flex;
+        align-items: center;
         gap: 20px;
       }
       .foot-inner a {
@@ -748,6 +771,20 @@
       .foot-inner a:hover {
         color: var(--text);
         text-decoration: none;
+      }
+      .foot-inner .links a {
+        display: inline-flex;
+        align-items: center;
+      }
+      .foot-inner .links svg {
+        display: block;
+        width: auto;
+      }
+      .ico-gh {
+        height: 20px;
+      }
+      .ico-npm {
+        height: 22px;
       }
       .copyright {
         font-size: 0.82rem;
@@ -804,7 +841,25 @@
           <a href="#capabilities">Capabilities</a>
           <a href="#how">Design</a>
           <a href="#install">Install</a>
-          <a href="https://github.com/BlaiseMoses01/playback-mcp">GitHub</a>
+          <span class="nav-icons">
+            <a
+              href="https://github.com/BlaiseMoses01/playback-mcp"
+              aria-label="Playback MCP on GitHub"
+            >
+              <svg class="ico-gh" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path
+                  d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8Z"
+                />
+              </svg>
+            </a>
+            <a href="https://www.npmjs.com/package/playback-mcp" aria-label="playback-mcp on npm">
+              <svg class="ico-npm" viewBox="0 0 24 24" fill="#CB3837" aria-hidden="true">
+                <path
+                  d="M1.763 0C.786 0 0 .786 0 1.763v20.474C0 23.214.786 24 1.763 24h20.474c.977 0 1.763-.786 1.763-1.763V1.763C24 .786 23.214 0 22.237 0zM5.13 5.323l13.837.019-.009 13.836h-3.464l.01-10.382h-3.456L12.08 19.17H5.113z"
+                />
+              </svg>
+            </a>
+          </span>
         </nav>
       </div>
     </header>
@@ -1356,7 +1411,11 @@
         <ol class="steps">
           <li>
             <h3>Install the server</h3>
-            <p>One global npm package — no clone, no build.</p>
+            <p>
+              One global
+              <a href="https://www.npmjs.com/package/playback-mcp">npm package</a> — no clone, no
+              build.
+            </p>
             <div class="cmd-block">
               <pre class="cmd"><span class="c">$</span> npm i -g playback-mcp</pre>
               <button class="copy-btn" type="button" data-copy="npm i -g playback-mcp">
@@ -1502,7 +1561,23 @@
           <span class="copyright">© 2026 Blaise Moses</span>
         </div>
         <div class="links">
-          <a href="https://github.com/BlaiseMoses01/playback-mcp">GitHub</a>
+          <a
+            href="https://github.com/BlaiseMoses01/playback-mcp"
+            aria-label="Playback MCP on GitHub"
+          >
+            <svg class="ico-gh" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+              <path
+                d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8Z"
+              />
+            </svg>
+          </a>
+          <a href="https://www.npmjs.com/package/playback-mcp" aria-label="playback-mcp on npm">
+            <svg class="ico-npm" viewBox="0 0 24 24" fill="#CB3837" aria-hidden="true">
+              <path
+                d="M1.763 0C.786 0 0 .786 0 1.763v20.474C0 23.214.786 24 1.763 24h20.474c.977 0 1.763-.786 1.763-1.763V1.763C24 .786 23.214 0 22.237 0zM5.13 5.323l13.837.019-.009 13.836h-3.464l.01-10.382h-3.456L12.08 19.17H5.113z"
+              />
+            </svg>
+          </a>
           <a href="https://github.com/BlaiseMoses01/playback-mcp/issues">Support</a>
           <a href="architecture/">Architecture</a>
         </div>

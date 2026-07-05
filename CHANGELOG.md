@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.4] - 2026-07-05
+
+### Added
+
+- `playback-mcp --version` / `-v` and `--help` / `-h`. Running the binary in an
+  interactive terminal (rather than being spawned by an MCP client) now prints a
+  short hint instead of hanging silently on stdin; `--serve` forces server mode.
+
+### Changed
+
+- The server version reported over MCP is now read from `package.json` at startup
+  instead of being hardcoded, so it can no longer drift out of sync on release.
+- README and the docs site gain an npm version badge, links to the published
+  `playback-mcp` package, and GitHub/npm icons in the nav and footer.
+
 ## [0.2.3] - 2026-07-04
 
 ### Changed
@@ -79,7 +94,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   workflows; Dependabot for GitHub Actions and npm; husky + lint-staged pre-commit hooks.
 - Project docs: README, CONTRIBUTING, SECURITY, AGENTS/CLAUDE guidance, and a PR template.
 
-[Unreleased]: https://github.com/BlaiseMoses01/playback-mcp/compare/v0.2.3...HEAD
+[Unreleased]: https://github.com/BlaiseMoses01/playback-mcp/compare/v0.2.4...HEAD
+[0.2.4]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.4
 [0.2.3]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.3
 [0.2.2]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.2
 [0.2.1]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.1
