@@ -1,7 +1,7 @@
 ---
 name: pr
 description: Open a pull request from dev into main for this repo, following the repo's checklist and template. Use when asked to open/create a PR, or as part of the release flow.
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Opening a PR (playback-mcp)
