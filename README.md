@@ -30,6 +30,12 @@ Ask your agent in plain language:
 section loops with per-pass speed ramps, clip sequences, named timestamps, transcript
 search, and a searchable library of saved videos.
 
+## Demo
+
+<p align="center">
+  <a href="https://youtu.be/MbrTZ8l8VJo"><img src="https://img.youtube.com/vi/MbrTZ8l8VJo/maxresdefault.jpg" alt="Playback MCP demo" width="600"></a>
+</p>
+
 ## What you can do with it
 
 |                          |                                                                                 |
