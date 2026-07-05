@@ -1,0 +1,990 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>System Design — Playback MCP</title>
+    <meta
+      name="description"
+      content="How Playback MCP multiplexes many AI agent sessions onto one browser: a shared broker owns the localhost port and routes commands by sessionId to a managed tab per session."
+    />
+    <meta name="theme-color" content="#4338CA" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="System Design — Playback MCP" />
+    <meta
+      property="og:description"
+      content="A shared broker owns the localhost port and routes commands by sessionId to a managed tab per session."
+    />
+    <meta
+      property="og:image"
+      content="https://raw.githubusercontent.com/BlaiseMoses01/playback-mcp/main/assets/social-preview.png"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect x='70' y='138' width='372' height='298' rx='58' fill='%234338CA'/%3E%3Crect x='116' y='186' width='280' height='202' rx='34' fill='%23111119'/%3E%3Cpath d='M212 232 L212 342 L312 287 Z' fill='%23FF5A52'/%3E%3C/svg%3E"
+    />
+
+    <style>
+      :root {
+        --indigo: #5a5eea;
+        --indigo-deep: #3f37b5;
+        --indigo-ink: #4338ca;
+        --red: #ff5a52;
+
+        --bg: #f7f7fb;
+        --bg-elev: #ffffff;
+        --surface: #ffffff;
+        --border: #e5e5ef;
+        --text: #16161d;
+        --text-muted: #5b5b6b;
+        --shadow: 0 1px 2px rgba(20, 20, 40, 0.04), 0 8px 24px rgba(20, 20, 40, 0.06);
+
+        /* diagram-specific, theme-swapped below */
+        --node-bg: #ffffff;
+        --node-stroke: #d9d9e6;
+        --edge: #b9b9cc;
+        --edge-label: #6b6b80;
+        --canvas: #ffffff;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0b0b12;
+          --bg-elev: #12121c;
+          --surface: #14141f;
+          --border: #2a2a3c;
+          --text: #ececf4;
+          --text-muted: #a3a3b8;
+          --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.35);
+
+          --node-bg: #171724;
+          --node-stroke: #33334a;
+          --edge: #3a3a52;
+          --edge-label: #9a9ab5;
+          --canvas: #0e0e17;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+      a {
+        color: var(--indigo-ink);
+        text-decoration: none;
+      }
+      @media (prefers-color-scheme: dark) {
+        a {
+          color: var(--indigo);
+        }
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      code {
+        font-family: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+        background: color-mix(in srgb, var(--indigo) 12%, transparent);
+        padding: 1px 6px;
+        border-radius: 6px;
+        font-size: 0.86em;
+      }
+
+      header.nav {
+        border-bottom: 1px solid var(--border);
+        background: var(--bg-elev);
+      }
+      .nav-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 60px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        color: var(--text);
+      }
+      .brand:hover {
+        text-decoration: none;
+      }
+      .brand svg {
+        width: 26px;
+        height: 26px;
+      }
+      .back {
+        font-size: 0.94rem;
+        color: var(--text-muted);
+      }
+
+      .page-head {
+        text-align: center;
+        padding: 56px 0 12px;
+      }
+      .page-head .eyebrow {
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: 0.76rem;
+        font-weight: 700;
+        color: var(--indigo-ink);
+      }
+      @media (prefers-color-scheme: dark) {
+        .page-head .eyebrow {
+          color: var(--indigo);
+        }
+      }
+      .page-head h1 {
+        font-size: clamp(1.8rem, 4.5vw, 2.6rem);
+        letter-spacing: -0.02em;
+        margin: 8px 0 12px;
+      }
+      .page-head p {
+        color: var(--text-muted);
+        max-width: 640px;
+        margin: 0 auto;
+      }
+
+      .diagram-card {
+        background: var(--canvas);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: var(--shadow);
+        padding: 20px;
+        margin: 36px 0 8px;
+        overflow-x: auto;
+      }
+      .diagram-card svg {
+        display: block;
+        width: 100%;
+        min-width: 720px;
+        height: auto;
+      }
+      .diagram-card marker path {
+        fill: var(--edge);
+      }
+      .diagram-card svg.diagram-v {
+        display: none;
+        min-width: 0;
+        max-width: 440px;
+        margin: 0 auto;
+      }
+      @media (max-width: 720px) {
+        .diagram-card svg.diagram-h {
+          display: none;
+        }
+        .diagram-card svg.diagram-v {
+          display: block;
+        }
+        .diagram-card {
+          padding: 16px;
+        }
+      }
+      .legend {
+        display: flex;
+        gap: 22px;
+        flex-wrap: wrap;
+        justify-content: center;
+        font-size: 0.84rem;
+        color: var(--text-muted);
+        margin: 14px 0 48px;
+      }
+      .legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+      }
+      .swatch {
+        width: 13px;
+        height: 13px;
+        border-radius: 4px;
+      }
+
+      /* ---------- Services carousel ---------- */
+      .carousel {
+        margin-bottom: 24px;
+      }
+      .carousel-track {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        gap: 18px;
+        scrollbar-width: none;
+      }
+      .carousel-track::-webkit-scrollbar {
+        display: none;
+      }
+      .pane {
+        flex: 0 0 100%;
+        scroll-snap-align: center;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 28px;
+        box-shadow: var(--shadow);
+      }
+      .pane-head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .pane-badge {
+        flex: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: grid;
+        place-items: center;
+        color: #fff;
+        background: linear-gradient(120deg, var(--indigo) 0%, var(--indigo-deep) 100%);
+      }
+      .pane-badge svg {
+        width: 21px;
+        height: 21px;
+      }
+      .pane-head h3 {
+        margin: 0;
+        font-size: 1.15rem;
+        letter-spacing: -0.01em;
+      }
+      .pane-head .kind {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        font-family: ui-monospace, Menlo, monospace;
+      }
+      .pane ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 10px;
+      }
+      .pane li {
+        position: relative;
+        padding-left: 22px;
+        color: var(--text-muted);
+        font-size: 0.94rem;
+      }
+      .pane li::before {
+        content: '';
+        position: absolute;
+        left: 4px;
+        top: 9px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--indigo);
+      }
+      .pane li code {
+        color: var(--text);
+      }
+      .carousel-nav {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        margin: 18px 0 56px;
+      }
+      .carousel-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        transition: border-color 0.15s ease;
+      }
+      .carousel-btn:hover {
+        border-color: var(--indigo);
+      }
+      .carousel-btn svg {
+        width: 18px;
+        height: 18px;
+      }
+      .carousel-dots {
+        display: flex;
+        gap: 8px;
+      }
+      .carousel-dots button {
+        width: 8px;
+        height: 8px;
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        background: var(--node-stroke);
+        cursor: pointer;
+        transition: background 0.15s ease;
+      }
+      .carousel-dots button.active {
+        background: var(--indigo);
+      }
+
+      footer {
+        border-top: 1px solid var(--border);
+        padding: 30px 0;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        text-align: center;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="nav">
+      <div class="wrap nav-inner">
+        <a class="brand" href="../">
+          <svg viewBox="0 0 512 512" aria-hidden="true">
+            <defs>
+              <linearGradient id="navg" x1="0" y1="0.2" x2="0" y2="0.95">
+                <stop offset="0" stop-color="#5A5EEA" />
+                <stop offset="1" stop-color="#3F37B5" />
+              </linearGradient>
+            </defs>
+            <polyline
+              points="256,140 256,98 296,72"
+              fill="none"
+              stroke="#4338CA"
+              stroke-width="16"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <circle cx="296" cy="68" r="16" fill="#FF5A52" />
+            <rect x="70" y="138" width="372" height="298" rx="58" fill="url(#navg)" />
+            <rect x="116" y="186" width="280" height="202" rx="34" fill="#111119" />
+            <path d="M212 232 L212 342 L312 287 Z" fill="#FF5A52" />
+          </svg>
+          Playback MCP
+        </a>
+        <a class="back" href="../">← Back to home</a>
+      </div>
+    </header>
+
+    <div class="page-head">
+      <div class="wrap">
+        <div class="eyebrow">System Design</div>
+        <h1>One broker, many sessions</h1>
+        <p>
+          Each session runs its own <code>playback-mcp</code> server and drives its own tab. A
+          shared broker multiplexes them onto the one extension, routing by <code>sessionId</code>.
+        </p>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <div class="diagram-card">
+        <!-- horizontal (wide screens) -->
+        <svg
+          class="diagram-h"
+          viewBox="0 0 1040 580"
+          role="img"
+          aria-label="Playback MCP system architecture"
+        >
+          <defs>
+            <linearGradient id="brokerGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#5A5EEA" />
+              <stop offset="1" stop-color="#3F37B5" />
+            </linearGradient>
+            <marker
+              id="arrow"
+              viewBox="0 0 10 10"
+              refX="9"
+              refY="5"
+              markerWidth="7"
+              markerHeight="7"
+              orient="auto-start-reverse"
+            >
+              <path d="M0 0 L10 5 L0 10 z" />
+            </marker>
+            <style>
+              .node {
+                fill: var(--node-bg);
+                stroke: var(--node-stroke);
+                stroke-width: 1.5;
+              }
+              .lbl {
+                fill: var(--text);
+                font:
+                  600 14px -apple-system,
+                  BlinkMacSystemFont,
+                  'Segoe UI',
+                  Roboto,
+                  sans-serif;
+              }
+              .sub {
+                fill: var(--text-muted);
+                font:
+                  500 11px ui-monospace,
+                  Menlo,
+                  monospace;
+              }
+              .edge {
+                stroke: var(--edge);
+                stroke-width: 2;
+                fill: none;
+              }
+              .elabel {
+                fill: var(--edge-label);
+                font:
+                  500 11px ui-monospace,
+                  Menlo,
+                  monospace;
+              }
+            </style>
+          </defs>
+
+          <g class="elabel" text-anchor="middle">
+            <text x="115" y="42">CLIENTS</text>
+            <text x="390" y="42">MCP SERVERS</text>
+            <text x="646" y="42">BROKER</text>
+            <text x="840" y="42">EXTENSION</text>
+            <text x="975" y="42">TABS</text>
+          </g>
+
+          <path class="edge" d="M170 96 H300" marker-end="url(#arrow)" />
+          <path class="edge" d="M170 216 H300" marker-end="url(#arrow)" />
+          <path class="edge" d="M170 336 H300" marker-end="url(#arrow)" />
+          <text class="elabel" x="235" y="208" text-anchor="middle">stdio</text>
+          <path class="edge" d="M480 96 C540 96 546 216 576 216" marker-end="url(#arrow)" />
+          <path class="edge" d="M480 216 H576" marker-end="url(#arrow)" />
+          <path class="edge" d="M480 336 C540 336 546 216 576 216" marker-end="url(#arrow)" />
+          <text class="elabel" x="528" y="150" text-anchor="middle">ws · :8765</text>
+          <path class="edge" d="M716 216 H780" marker-end="url(#arrow)" />
+          <path class="edge" d="M900 216 C924 216 928 96 946 96" marker-end="url(#arrow)" />
+          <path class="edge" d="M900 216 H946" marker-end="url(#arrow)" />
+          <path class="edge" d="M900 216 C924 216 928 336 946 336" marker-end="url(#arrow)" />
+
+          <rect
+            x="288"
+            y="61"
+            width="204"
+            height="310"
+            rx="16"
+            fill="none"
+            stroke="var(--node-stroke)"
+            stroke-width="1.5"
+            stroke-dasharray="5 6"
+          />
+          <path
+            class="edge"
+            d="M390 371 V424"
+            marker-start="url(#arrow)"
+            marker-end="url(#arrow)"
+          />
+          <text class="elabel" x="404" y="404" text-anchor="start">node:sqlite</text>
+
+          <path
+            d="M295 432 L295 490 A95 12 0 0 0 485 490 L485 432"
+            fill="rgba(90,94,234,0.10)"
+            stroke="#5A5EEA"
+            stroke-width="1.5"
+          />
+          <ellipse
+            cx="390"
+            cy="432"
+            rx="95"
+            ry="12"
+            fill="rgba(90,94,234,0.16)"
+            stroke="#5A5EEA"
+            stroke-width="1.5"
+          />
+          <text class="lbl" x="390" y="462" text-anchor="middle">SQLite library</text>
+          <text class="sub" x="390" y="480" text-anchor="middle">library.db · WAL</text>
+
+          <g>
+            <rect class="node" x="60" y="73" width="110" height="46" rx="11" />
+            <rect class="node" x="60" y="193" width="110" height="46" rx="11" />
+            <rect class="node" x="60" y="313" width="110" height="46" rx="11" />
+          </g>
+          <g class="lbl" text-anchor="middle">
+            <text x="115" y="94">Agent A</text>
+            <text x="115" y="214">Agent B</text>
+            <text x="115" y="334">Agent C</text>
+          </g>
+          <g class="sub" text-anchor="middle">
+            <text x="115" y="110">session</text>
+            <text x="115" y="230">session</text>
+            <text x="115" y="350">session</text>
+          </g>
+
+          <g>
+            <rect class="node" x="300" y="73" width="180" height="46" rx="11" />
+            <rect class="node" x="300" y="193" width="180" height="46" rx="11" />
+            <rect class="node" x="300" y="313" width="180" height="46" rx="11" />
+          </g>
+          <g class="lbl" text-anchor="middle">
+            <text x="390" y="94">playback-mcp</text>
+            <text x="390" y="214">playback-mcp</text>
+            <text x="390" y="334">playback-mcp</text>
+          </g>
+          <g class="sub" text-anchor="middle">
+            <text x="390" y="110">sessionId A</text>
+            <text x="390" y="230">sessionId B</text>
+            <text x="390" y="350">sessionId C</text>
+          </g>
+
+          <rect x="576" y="184" width="140" height="64" rx="13" fill="url(#brokerGrad)" />
+          <text
+            x="646"
+            y="212"
+            text-anchor="middle"
+            fill="#fff"
+            style="
+              font:
+                600 14px -apple-system,
+                BlinkMacSystemFont,
+                'Segoe UI',
+                sans-serif;
+            "
+          >
+            broker
+          </text>
+          <text
+            x="646"
+            y="230"
+            text-anchor="middle"
+            fill="rgba(255,255,255,0.82)"
+            style="
+              font:
+                500 11px ui-monospace,
+                Menlo,
+                monospace;
+            "
+          >
+            127.0.0.1:8765
+          </text>
+
+          <rect class="node" x="780" y="190" width="120" height="52" rx="12" />
+          <text class="lbl" x="840" y="212" text-anchor="middle">extension</text>
+          <text class="sub" x="840" y="228" text-anchor="middle">service worker</text>
+
+          <g>
+            <rect class="node" x="946" y="73" width="58" height="46" rx="11" />
+            <rect class="node" x="946" y="193" width="58" height="46" rx="11" />
+            <rect class="node" x="946" y="313" width="58" height="46" rx="11" />
+          </g>
+          <g class="lbl" text-anchor="middle">
+            <text x="975" y="94">tab A</text>
+            <text x="975" y="214">tab B</text>
+            <text x="975" y="334">tab C</text>
+          </g>
+          <g fill="#FF5A52">
+            <circle cx="975" cy="108" r="4" />
+            <circle cx="975" cy="228" r="4" />
+            <circle cx="975" cy="348" r="4" />
+          </g>
+
+          <text class="elabel" x="520" y="545" text-anchor="middle">
+            one broker owns the port · routed by sessionId · one shared SQLite library on disk
+          </text>
+        </svg>
+
+        <!-- vertical (narrow screens) -->
+        <svg
+          class="diagram-v"
+          viewBox="0 0 560 640"
+          role="img"
+          aria-label="Playback MCP system architecture"
+        >
+          <defs>
+            <linearGradient id="brokerGradVert" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#5A5EEA" />
+              <stop offset="1" stop-color="#3F37B5" />
+            </linearGradient>
+            <marker
+              id="arrowVert"
+              viewBox="0 0 10 10"
+              refX="9"
+              refY="5"
+              markerWidth="7"
+              markerHeight="7"
+              orient="auto-start-reverse"
+            >
+              <path d="M0 0 L10 5 L0 10 z" />
+            </marker>
+          </defs>
+
+          <!-- client -> server -->
+          <path class="edge" d="M100 80 V150" marker-end="url(#arrowVert)" />
+          <path class="edge" d="M240 80 V150" marker-end="url(#arrowVert)" />
+          <path class="edge" d="M380 80 V150" marker-end="url(#arrowVert)" />
+          <text class="elabel" x="252" y="118" text-anchor="start">stdio</text>
+
+          <!-- server group -->
+          <rect
+            x="33"
+            y="142"
+            width="414"
+            height="60"
+            rx="14"
+            fill="none"
+            stroke="var(--node-stroke)"
+            stroke-width="1.5"
+            stroke-dasharray="5 6"
+          />
+
+          <!-- shared SQLite (right of servers) -->
+          <path
+            class="edge"
+            d="M447 172 H458"
+            marker-start="url(#arrowVert)"
+            marker-end="url(#arrowVert)"
+          />
+          <text class="elabel" x="500" y="230" text-anchor="middle">shared</text>
+          <path
+            d="M458 150 L458 200 A42 8 0 0 0 542 200 L542 150"
+            fill="rgba(90,94,234,0.10)"
+            stroke="#5A5EEA"
+            stroke-width="1.5"
+          />
+          <ellipse
+            cx="500"
+            cy="150"
+            rx="42"
+            ry="8"
+            fill="rgba(90,94,234,0.16)"
+            stroke="#5A5EEA"
+            stroke-width="1.5"
+          />
+          <text class="lbl" x="500" y="176" text-anchor="middle" style="font-size: 13px">
+            SQLite
+          </text>
+          <text class="sub" x="500" y="191" text-anchor="middle" style="font-size: 10px">
+            library.db
+          </text>
+
+          <!-- merge servers -> broker -->
+          <path class="edge" d="M100 202 V228" />
+          <path class="edge" d="M240 202 V228" />
+          <path class="edge" d="M380 202 V228" />
+          <path class="edge" d="M100 228 H380" />
+          <path class="edge" d="M240 228 V286" marker-end="url(#arrowVert)" />
+          <text class="elabel" x="255" y="262" text-anchor="start">ws :8765</text>
+
+          <!-- broker -> extension -->
+          <path class="edge" d="M240 350 V410" marker-end="url(#arrowVert)" />
+
+          <!-- split extension -> tabs -->
+          <path class="edge" d="M240 462 V498" />
+          <path class="edge" d="M100 498 H380" />
+          <path class="edge" d="M100 498 V526" marker-end="url(#arrowVert)" />
+          <path class="edge" d="M240 498 V526" marker-end="url(#arrowVert)" />
+          <path class="edge" d="M380 498 V526" marker-end="url(#arrowVert)" />
+
+          <!-- clients -->
+          <g>
+            <rect class="node" x="41" y="36" width="118" height="44" rx="11" />
+            <rect class="node" x="181" y="36" width="118" height="44" rx="11" />
+            <rect class="node" x="321" y="36" width="118" height="44" rx="11" />
+          </g>
+          <g class="lbl" text-anchor="middle">
+            <text x="100" y="59">Agent A</text>
+            <text x="240" y="59">Agent B</text>
+            <text x="380" y="59">Agent C</text>
+          </g>
+          <g class="sub" text-anchor="middle">
+            <text x="100" y="74">session</text>
+            <text x="240" y="74">session</text>
+            <text x="380" y="74">session</text>
+          </g>
+
+          <!-- servers -->
+          <g>
+            <rect class="node" x="41" y="150" width="118" height="44" rx="11" />
+            <rect class="node" x="181" y="150" width="118" height="44" rx="11" />
+            <rect class="node" x="321" y="150" width="118" height="44" rx="11" />
+          </g>
+          <g class="lbl" text-anchor="middle" style="font-size: 13px">
+            <text x="100" y="172">playback-mcp</text>
+            <text x="240" y="172">playback-mcp</text>
+            <text x="380" y="172">playback-mcp</text>
+          </g>
+          <g class="sub" text-anchor="middle">
+            <text x="100" y="187">sessionId A</text>
+            <text x="240" y="187">sessionId B</text>
+            <text x="380" y="187">sessionId C</text>
+          </g>
+
+          <!-- broker -->
+          <rect x="170" y="286" width="140" height="64" rx="13" fill="url(#brokerGradVert)" />
+          <text
+            x="240"
+            y="314"
+            text-anchor="middle"
+            fill="#fff"
+            style="
+              font:
+                600 14px -apple-system,
+                BlinkMacSystemFont,
+                'Segoe UI',
+                sans-serif;
+            "
+          >
+            broker
+          </text>
+          <text
+            x="240"
+            y="332"
+            text-anchor="middle"
+            fill="rgba(255,255,255,0.82)"
+            style="
+              font:
+                500 11px ui-monospace,
+                Menlo,
+                monospace;
+            "
+          >
+            127.0.0.1:8765
+          </text>
+
+          <!-- extension -->
+          <rect class="node" x="180" y="410" width="120" height="52" rx="12" />
+          <text class="lbl" x="240" y="432" text-anchor="middle">extension</text>
+          <text class="sub" x="240" y="448" text-anchor="middle">service worker</text>
+
+          <!-- tabs -->
+          <g>
+            <rect class="node" x="41" y="526" width="118" height="44" rx="11" />
+            <rect class="node" x="181" y="526" width="118" height="44" rx="11" />
+            <rect class="node" x="321" y="526" width="118" height="44" rx="11" />
+          </g>
+          <g class="lbl" text-anchor="middle">
+            <text x="100" y="550">tab A</text>
+            <text x="240" y="550">tab B</text>
+            <text x="380" y="550">tab C</text>
+          </g>
+          <g fill="#FF5A52">
+            <circle cx="100" cy="561" r="3.5" />
+            <circle cx="240" cy="561" r="3.5" />
+            <circle cx="380" cy="561" r="3.5" />
+          </g>
+
+          <text class="elabel" x="280" y="612" text-anchor="middle">
+            one broker · routed by sessionId · one shared library
+          </text>
+        </svg>
+      </div>
+
+      <div class="legend">
+        <span
+          ><span
+            class="swatch"
+            style="background: linear-gradient(120deg, #5a5eea, #3f37b5)"
+          ></span>
+          shared broker</span
+        >
+        <span
+          ><span
+            class="swatch"
+            style="background: rgba(90, 94, 234, 0.35); border: 1.5px solid #5a5eea"
+          ></span>
+          shared SQLite store</span
+        >
+        <span><span class="swatch" style="background: #ff5a52"></span> active &lt;video&gt;</span>
+      </div>
+
+      <!-- ===================== Services carousel ===================== -->
+      <div class="carousel">
+        <div class="carousel-track">
+          <div class="pane">
+            <div class="pane-head">
+              <span class="pane-badge">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <rect
+                    x="3"
+                    y="4"
+                    width="18"
+                    height="16"
+                    rx="2"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <path
+                    d="M7 9l3 3-3 3M13 15h4"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+              <div>
+                <h3>MCP server</h3>
+                <span class="kind">playback-mcp · Node ≥ 23.4</span>
+              </div>
+            </div>
+            <ul>
+              <li>One process per session, speaking MCP over <code>stdio</code> to your agent.</li>
+              <li>
+                Exposes every tool — play/seek/speed/volume, loops, sequences, library, transcripts.
+              </li>
+              <li>Owns the shared library via <code>node:sqlite</code> (WAL).</li>
+              <li>Fetches captions straight from YouTube, server-side.</li>
+              <li>Auto-spawns the broker on first use.</li>
+            </ul>
+          </div>
+
+          <div class="pane">
+            <div class="pane-head">
+              <span class="pane-badge">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" />
+                  <circle cx="5" cy="5" r="2" stroke="currentColor" stroke-width="2" />
+                  <circle cx="19" cy="5" r="2" stroke="currentColor" stroke-width="2" />
+                  <circle cx="12" cy="21" r="2" stroke="currentColor" stroke-width="2" />
+                  <path
+                    d="M7 6.5l3 3.5M17 6.5l-3 3.5M12 15v4"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </span>
+              <div>
+                <h3>Broker</h3>
+                <span class="kind">playback-mcp-broker · :8765</span>
+              </div>
+            </div>
+            <ul>
+              <li>Standalone daemon that owns <code>127.0.0.1:8765</code> — exactly one runs.</li>
+              <li>
+                Multiplexes every server onto the single extension, routing by
+                <code>sessionId</code>.
+              </li>
+              <li>Enforces an Origin allow-list at the WebSocket handshake.</li>
+              <li>Idle-exits ~60s after the last session disconnects.</li>
+            </ul>
+          </div>
+
+          <div class="pane">
+            <div class="pane-head">
+              <span class="pane-badge">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <rect
+                    x="3"
+                    y="5"
+                    width="18"
+                    height="14"
+                    rx="2"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <path
+                    d="M3 9h18M7 5v4"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </span>
+              <div>
+                <h3>Extension</h3>
+                <span class="kind">Chrome · worker + content script</span>
+              </div>
+            </div>
+            <ul>
+              <li>Keeps one managed tab per session.</li>
+              <li>
+                Drives only the page's <code>&lt;video&gt;</code> — time, rate, volume, play/pause.
+              </li>
+              <li>Never clicks UI, scrapes, or navigates beyond opening a watch URL.</li>
+              <li>Supplies the current videoId so the server can fetch captions.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="carousel-nav">
+        <button class="carousel-btn carousel-prev" type="button" aria-label="Previous service">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M15 6l-6 6 6 6"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+        <div class="carousel-dots">
+          <button class="active" type="button" aria-label="Go to service 1"></button>
+          <button type="button" aria-label="Go to service 2"></button>
+          <button type="button" aria-label="Go to service 3"></button>
+        </div>
+        <button class="carousel-btn carousel-next" type="button" aria-label="Next service">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M9 6l6 6-6 6"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const track = document.querySelector('.carousel-track');
+        if (!track) return;
+        const panes = [...track.children];
+        const dots = [...document.querySelectorAll('.carousel-dots button')];
+        const posOf = (i) => panes[i].offsetLeft - panes[0].offsetLeft;
+        const current = () => {
+          const x = track.scrollLeft;
+          let best = 0,
+            bd = Infinity;
+          panes.forEach((p, i) => {
+            const d = Math.abs(posOf(i) - x);
+            if (d < bd) {
+              bd = d;
+              best = i;
+            }
+          });
+          return best;
+        };
+        const go = (i) => {
+          i = Math.max(0, Math.min(panes.length - 1, i));
+          track.scrollTo({ left: posOf(i), behavior: 'smooth' });
+        };
+        document.querySelector('.carousel-prev').addEventListener('click', () => go(current() - 1));
+        document.querySelector('.carousel-next').addEventListener('click', () => go(current() + 1));
+        dots.forEach((d, i) => d.addEventListener('click', () => go(i)));
+        const sync = () => {
+          const c = current();
+          dots.forEach((d, i) => d.classList.toggle('active', i === c));
+        };
+        track.addEventListener('scroll', sync, { passive: true });
+        sync();
+      })();
+    </script>
+
+    <footer>
+      <div class="wrap">
+        <a href="../">← Playback MCP home</a> ·
+        <a href="https://github.com/BlaiseMoses01/playback-mcp">GitHub</a>
+      </div>
+    </footer>
+  </body>
+</html>

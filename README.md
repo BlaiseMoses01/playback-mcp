@@ -1,67 +1,103 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/BlaiseMoses01/playback-mcp/main/assets/social-preview.png" alt="playback-mcp — control YouTube playback from your editor" width="720">
+  <img src="https://raw.githubusercontent.com/BlaiseMoses01/playback-mcp/main/assets/social-preview.png" alt="Playback MCP — YouTube control for AI agents" width="720">
 </p>
 
-# Playback MCP
+<h1 align="center">Playback MCP</h1>
 
-[![CI](https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/codeql.yml/badge.svg)](https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/codeql.yml)
-[![Secret Scanning](https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/gitleaks.yml/badge.svg)](https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/gitleaks.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+<p align="center"><strong>YouTube control for AI agents.</strong></p>
 
-Control playback in your browser from [MCP](https://modelcontextprotocol.io) clients like Claude Code. Local-first, free, MIT.
+<p align="center">
+  Loop, seek, sequence clips, and search transcripts in your real browser —
+  driven by <a href="https://claude.com/claude-code">Claude Code</a> or any
+  <a href="https://modelcontextprotocol.io">MCP</a> client.<br>Local-first, free, MIT.
+</p>
 
-Ask Claude things like:
+<p align="center">
+  <a href="https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/ci.yml"><img src="https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/codeql.yml"><img src="https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/codeql.yml/badge.svg" alt="CodeQL"></a>
+  <a href="https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/gitleaks.yml"><img src="https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/gitleaks.yml/badge.svg" alt="Secret Scanning"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+</p>
+
+---
+
+Ask your agent in plain language:
 
 > _"open the stairway lesson and loop 0:15–0:42 at 75% speed, three passes"_
 
-and it happens in your actual Chrome tab — play, pause, seek, speed, volume, A-B section loops with per-pass speed ramps, clip sequences, named timestamps, transcript search, and a searchable library of saved videos.
+…and it happens in your actual browser tab — play, pause, seek, speed, volume, A–B
+section loops with per-pass speed ramps, clip sequences, named timestamps, transcript
+search, and a searchable library of saved videos.
 
-Local, and multi-session: run several Claude sessions at once and each drives its own
-YouTube tab in parallel. Every `playback-mcp` connects to a shared broker (auto-started on
-first use) that owns the localhost port and routes each session to its own tab:
+## What you can do with it
 
-```
-Claude A ──stdio──▶ playback-mcp ─┐                              ┌─ tab A ──▶ <video X>
-Claude B ──stdio──▶ playback-mcp ─┼─▶ broker (127.0.0.1:8765) ─▶ extension ─┼─ tab B ──▶ <video Y>
-```
+|                          |                                                                                 |
+| ------------------------ | ------------------------------------------------------------------------------- |
+| 🎸 **Music practice**    | Loop a passage and ramp the speed up pass by pass, hands-free.                  |
+| 🗣️ **Language learning** | Slow a sentence down and jump to every place a phrase is spoken.                |
+| 📝 **Study & notes**     | Summarize a lecture from its transcript and save timestamps to revisit.         |
+| 🍳 **Cooking & how-tos** | Turn a recipe or tutorial into written steps — or a clip reel of the key parts. |
+| ✂️ **Shorts & clips**    | Mine a long video for short-form ideas and pull the exact clips.                |
+| ⏭️ **Skip the filler**   | Find the sponsor reads in a long podcast and jump past them.                    |
 
-**Bot-safe by design:** the extension only reads/writes the `<video>` element's properties (currentTime, playbackRate, volume, play/pause). It never clicks UI, never scrapes, never automates navigation beyond opening a watch URL. This is meant to minimize any malicious user flagging or bot detection issues.
+## How it works
+
+One broker owns the localhost port and routes each session to its own tab. Every
+`playback-mcp` server shares a single library on disk.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/BlaiseMoses01/playback-mcp/main/assets/diagram-system-simple.png" alt="Agent → playback-mcp → broker → extension → browser tab, with a shared SQLite library" width="900">
+</p>
+
+Run several sessions at once and each drives its own YouTube tab in parallel. The broker
+auto-starts on first use and idles out ~a minute after the last session closes.
+
+<details>
+<summary><strong>Full multi-session architecture</strong></summary>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/BlaiseMoses01/playback-mcp/main/assets/diagram-system-full.png" alt="Multiple agent sessions multiplexed through one broker onto the extension, each with its own tab" width="960">
+</p>
+
+Each session gets a unique `sessionId`. The broker tags commands with it, multiplexes every
+server onto the one extension connection, and routes events back only to the owning session.
+Saved videos and timestamps live in a single WAL-mode SQLite database (`node:sqlite`) shared
+across all servers. A WebSocket Origin allow-list at the handshake means only the extension
+and local Node clients can connect — arbitrary web pages can't drive playback.
+
+</details>
 
 ## Install
 
-The released way — no clone, no build. Requires Node ≥ 23.4 (Node 24 LTS recommended
-— uses the built-in `node:sqlite`) and Chrome.
+The released way — no clone, no build. Requires **Node 24 LTS** (≥ 23.4; uses the built-in
+`node:sqlite`) and **Chrome**.
 
-1. Install the server: `npm i -g playback-mcp`
-2. Download `playback-mcp-extension-vX.Y.Z.zip` from the
-   [latest release](https://github.com/BlaiseMoses01/playback-mcp/releases/latest) and
-   unzip it
-3. Open `chrome://extensions`, enable **Developer mode**, click **Load unpacked**, and
-   pick the unzipped folder
-4. Register the server with Claude Code. Pick one:
-   - **Private to you (default scope):** `claude mcp add playback-mcp -- playback-mcp`
-   - **Project-scoped (committed, shared with anyone who opens the repo):** add a
-     `.mcp.json` at the repo root:
-     ```json
-     { "mcpServers": { "playback-mcp": { "command": "playback-mcp" } } }
-     ```
+1. **Install the server**
 
-Navigate to a YouTube video and ask Claude to pause it.
+   ```sh
+   npm i -g playback-mcp
+   ```
 
-## Build from source
+2. **Load the extension.** Download `playback-mcp-extension-vX.Y.Z.zip` from the
+   [latest release](https://github.com/BlaiseMoses01/playback-mcp/releases/latest) and unzip
+   it. In `chrome://extensions`, enable **Developer mode**, click **Load unpacked**, and pick
+   the unzipped folder.
 
-For development, or to run a custom `YT_BRIDGE_PORT` (the released extension bakes in
-port 8765 at build time):
+3. **Register it with your MCP client.** Any MCP client works — for Claude Code:
 
-```sh
-npm ci
-npm run build
-```
+   ```sh
+   claude mcp add playback-mcp -- playback-mcp
+   ```
 
-1. Open `chrome://extensions`, enable **Developer mode**
-2. Click **Load unpacked** and pick `extension/dist`
-3. Register the server: `claude mcp add playback-mcp -- node /abs/path/server/dist/index.js`
+   Or project-scoped (committed, shared with anyone who opens the repo) via a `.mcp.json` at
+   the repo root:
+
+   ```json
+   { "mcpServers": { "playback-mcp": { "command": "playback-mcp" } } }
+   ```
+
+4. **Open a YouTube video and ask** — _"pause it," "loop the chorus twice at 0.75×," "find
+   where they mention hooks."_
 
 ## Tools
 
@@ -83,6 +119,13 @@ npm run build
 
 Time inputs are forgiving: `"90"`, `"1:30"`, `"1m30s"`, `"1:02:03"`; speeds accept `"0.75x"`.
 
+## Safe by design
+
+The extension only reads and writes the `<video>` element's own properties — `currentTime`,
+`playbackRate`, `volume`, play/pause. It never clicks UI, never scrapes, and never automates
+navigation beyond opening a watch URL. Everything runs on `127.0.0.1`; your library lives in
+a local SQLite file and nothing is sent to any external server.
+
 ## Configuration
 
 | Env var                 | Default            | What                                                                                                                                                                         |
@@ -92,28 +135,44 @@ Time inputs are forgiving: `"90"`, `"1:30"`, `"1m30s"`, `"1:02:03"`; speeds acce
 
 ¹ Linux: `~/.local/share/playback-mcp` (respects `XDG_DATA_HOME`) · macOS: `~/Library/Application Support/playback-mcp` · Windows: `%APPDATA%\playback-mcp`
 
+## Build from source
+
+For development, or to run a custom `YT_BRIDGE_PORT` (the released extension bakes in port
+8765 at build time):
+
+```sh
+npm ci
+npm run build
+```
+
+1. Open `chrome://extensions`, enable **Developer mode**
+2. Click **Load unpacked** and pick `extension/dist`
+3. Register the server: `claude mcp add playback-mcp -- node /abs/path/server/dist/index.js`
+
 ## Troubleshooting
 
-- **"Chrome extension is not connected"** — make sure the extension is loaded and Chrome is running; it reconnects automatically within a few seconds.
-- **Multiple Claude sessions** — supported: each runs its own `playback-mcp` and drives its own YouTube tab. They share a background broker daemon (`playback-mcp-broker`) that starts automatically on first use and shuts down ~a minute after the last session closes.
-- **Tools work but nothing happens on screen** — confirm this session's managed YouTube tab still exists; `open_video` creates one. Each session controls only its own tab.
-- **"This video has no captions available" / transcript errors** — `get_transcript` and `search_transcript` fetch captions straight from YouTube for the currently open video; some videos genuinely have no captions, and `lang` must match an available track.
+- **"Chrome extension is not connected"** — make sure the extension is loaded and Chrome is
+  running; it reconnects automatically within a few seconds.
+- **Tools work but nothing happens on screen** — confirm this session's managed YouTube tab
+  still exists; `open_video` creates one. Each session controls only its own tab.
+- **Multiple sessions** — supported: each runs its own `playback-mcp` and drives its own tab.
+  They share a background broker daemon (`playback-mcp-broker`) that starts automatically on
+  first use and shuts down ~a minute after the last session closes.
+- **"This video has no captions available" / transcript errors** — `get_transcript` and
+  `search_transcript` fetch captions straight from YouTube for the open video; some videos
+  genuinely have no captions, and `lang` must match an available track.
 
 ## Development
 
 ```sh
 npm run build
-node scripts/mcp-poke.mjs      # full smoke test over real MCP stdio, no browser needed
+node scripts/mcp-poke.mjs       # full smoke test over real MCP stdio, no browser needed
 node scripts/fake-extension.mjs # mock extension that acks all commands (for manual poking)
 ```
 
-## Example Use Cases
-
-I built playback MCP for saving , looping ,and marking backing track videos for guitar practice. I connect Claude Code and tell it to "play the solo 3 times" or "play the verse at half speed" and it coordinates that based on saved timestamps I mark or have it mark for
-on my behalf.
-
-I also have been using it a good bit when studying/ learning new things from videos , I have it save them to my notes, mark timestamps along key points , etc so that when I review I can tell it " play the section on XYZ" or "give me as study guide for this topic , and play clips relevant to that".
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow, and
+[SECURITY.md](SECURITY.md) to report a vulnerability.
 
 ## License
 
-MIT
+[MIT](LICENSE) © 2026 Blaise Moses
