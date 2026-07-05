@@ -13,6 +13,7 @@
 </p>
 
 <p align="center">
+  <a href="https://www.npmjs.com/package/playback-mcp"><img src="https://img.shields.io/npm/v/playback-mcp?color=cb3837&logo=npm" alt="npm"></a>
   <a href="https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/ci.yml"><img src="https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/codeql.yml"><img src="https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/codeql.yml/badge.svg" alt="CodeQL"></a>
   <a href="https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/gitleaks.yml"><img src="https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/gitleaks.yml/badge.svg" alt="Secret Scanning"></a>
@@ -72,7 +73,7 @@ and local Node clients can connect — arbitrary web pages can't drive playback.
 The released way — no clone, no build. Requires **Node 24 LTS** (≥ 23.4; uses the built-in
 `node:sqlite`) and **Chrome**.
 
-1. **Install the server**
+1. **Install the server** — the [`playback-mcp`](https://www.npmjs.com/package/playback-mcp) package.
 
    ```sh
    npm i -g playback-mcp
