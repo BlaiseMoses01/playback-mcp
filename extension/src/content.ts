@@ -43,11 +43,19 @@ function adShowing(): boolean {
 }
 
 function trySkipAd(): boolean {
+  // Not scoped to #movie_player: newer player variants (e.g. ytp-delhi-modern) render the
+  // skip button outside it. These classes are ad-skip-specific, so a document-wide query
+  // can't misfire.
   const btn = document.querySelector<HTMLElement>(
-    '#movie_player .ytp-skip-ad-button, #movie_player .ytp-ad-skip-button-modern, #movie_player .ytp-ad-skip-button',
+    '.ytp-skip-ad-button, .ytp-ad-skip-button-modern, .ytp-ad-skip-button, .videoAdUiSkipButton',
   );
-  // offsetParent is null while the button is hidden behind the pre-skip countdown
-  if (!btn || btn.offsetParent === null) return false;
+  if (!btn) return false;
+  // Only click once the button is actually displayed to the user (after the pre-skip
+  // countdown) — never a hidden/pre-visible button, which reads as bot behavior.
+  // getBoundingClientRect reports 0×0 for a display:none button but a real size for a visible
+  // one, even under a position:fixed ancestor (where offsetParent would wrongly be null).
+  const rect = btn.getBoundingClientRect();
+  if (rect.width === 0 || rect.height === 0) return false;
   btn.click();
   return true;
 }
