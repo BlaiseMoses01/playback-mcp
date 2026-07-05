@@ -10,7 +10,7 @@ import { registerTranscriptTools } from './tools/transcript.js';
 
 // IMPORTANT: stdout belongs to the MCP stdio transport — all logging goes to stderr.
 
-const server = new McpServer({ name: 'playback-mcp', version: '0.1.0' });
+const server = new McpServer({ name: 'playback-mcp', version: '0.2.3' });
 const bridge = new Bridge();
 bridge.start(Number(process.env.YT_BRIDGE_PORT ?? 8765));
 

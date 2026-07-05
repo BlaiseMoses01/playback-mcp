@@ -29,3 +29,6 @@ npm-debug.log*
 
 # graphify dependency-graph build output (curated subset is synced into the second brain)
 graphify-out/
+
+.mcp.json
+.claude/settings.json

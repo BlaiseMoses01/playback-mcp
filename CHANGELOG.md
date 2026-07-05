@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-07-04
+
+### Changed
+
+- Extension documentation and user-facing verbiage updates.
+- Broadened the ad-skip button detection: the query is no longer scoped to
+  `#movie_player` (newer player variants render the skip button outside it) and
+  visibility is now checked via `getBoundingClientRect` so a skip button under a
+  `position: fixed` ancestor is still recognized. The button is still only clicked
+  once it's actually visible to the user.
+
 ## [0.2.2] - 2026-07-03
 
 ### Security
@@ -68,7 +79,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   workflows; Dependabot for GitHub Actions and npm; husky + lint-staged pre-commit hooks.
 - Project docs: README, CONTRIBUTING, SECURITY, AGENTS/CLAUDE guidance, and a PR template.
 
-[Unreleased]: https://github.com/BlaiseMoses01/playback-mcp/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/BlaiseMoses01/playback-mcp/compare/v0.2.3...HEAD
+[0.2.3]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.3
 [0.2.2]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.2
 [0.2.1]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.1
 [0.2.0]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.0
