@@ -33,7 +33,7 @@ search, and a searchable library of saved videos.
 ## Demo
 
 <p align="center">
-  <a href="https://youtu.be/MbrTZ8l8VJo"><img src="https://img.youtube.com/vi/MbrTZ8l8VJo/maxresdefault.jpg" alt="Playback MCP demo" width="600"></a>
+  <a href="https://youtu.be/WP4xh5uPnIc?si=3NNepGxws2-b8iq_"><img src="https://img.youtube.com/vi/WP4xh5uPnIc/maxresdefault.jpg" alt="Playback MCP demo" width="600"></a>
 </p>
 
 ## What you can do with it
