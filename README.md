@@ -22,14 +22,6 @@
 
 ---
 
-Ask your agent in plain language:
-
-> _"open the stairway lesson and loop 0:15–0:42 at 75% speed, three passes"_
-
-…and it happens in your actual browser tab — play, pause, seek, speed, volume, A–B
-section loops with per-pass speed ramps, clip sequences, named timestamps, transcript
-search, and a searchable library of saved videos.
-
 ## Demo
 
 <p align="center">
