@@ -1,5 +1,7 @@
 # Dependencies
 node_modules/
+# npm lockfile — this repo uses pnpm (pnpm-lock.yaml)
+package-lock.json
 
 # Build output (server/dist, extension/dist)
 dist/

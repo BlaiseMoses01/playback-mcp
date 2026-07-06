@@ -17,14 +17,14 @@
 
 ## Testing
 
-<!-- How did you verify this? Note the smoke test if relevant: `npm run smoke`. -->
+<!-- How did you verify this? Note the smoke test if relevant: `pnpm run smoke`. -->
 
 -
 
 ## Checklist
 
-- [ ] `npm run lint` and `npm run format:check` pass (ESLint + Prettier)
-- [ ] `npm run typecheck` and `npm run build` succeed
-- [ ] `npm test` passes (and `npm run smoke` if the server protocol changed)
+- [ ] `pnpm run lint` and `pnpm run format:check` pass (ESLint + Prettier)
+- [ ] `pnpm run typecheck` and `pnpm run build` succeed
+- [ ] `pnpm test` passes (and `pnpm run smoke` if the server protocol changed)
 - [ ] Updated `README.md` / `CHANGELOG.md` if behavior changed
 - [ ] No secrets or local state committed

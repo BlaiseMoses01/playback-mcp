@@ -10,12 +10,10 @@
   "homepage": "https://github.com/BlaiseMoses01/playback-mcp#readme",
   "bugs": "https://github.com/BlaiseMoses01/playback-mcp/issues",
   "type": "module",
-  "workspaces": [
-    "server",
-    "extension"
-  ],
+  "packageManager": "pnpm@11.9.0",
   "scripts": {
-    "build": "npm run build --workspaces",
+    "preinstall": "npx only-allow pnpm",
+    "build": "pnpm -r build",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

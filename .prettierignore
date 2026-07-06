@@ -1,7 +1,7 @@
 **/dist
 node_modules
 coverage
-package-lock.json
+pnpm-lock.yaml
 extension/manifest.json
 # Copied from the repo root into server/ by the prepack script; not source.
 server/README.md

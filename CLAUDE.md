@@ -15,7 +15,7 @@ Claude B ──stdio──▶ playback-mcp(sess B) ─┼─▶ broker (ws://127
 Claude C ──stdio──▶ playback-mcp(sess C) ─┘                              └─ tab C ──▶ <video Z>
 ```
 
-It's an npm **workspace monorepo** (`server` + `extension`); ESM throughout. Run all
+It's a pnpm **workspace monorepo** (`server` + `extension`); ESM throughout. Run all
 tooling from the repo root.
 
 - `server/` — the MCP server workspace (package name: `playback-mcp`). Node ≥ 23.4
@@ -26,13 +26,13 @@ tooling from the repo root.
 ## Commands
 
 ```sh
-npm ci                 # install both workspaces (husky hooks install via prepare)
-npm run build          # build server (tsc) + extension (esbuild) across workspaces
-npm run lint           # eslint over the whole repo
-npm run format         # prettier --write (format:check for the CI-style check)
-npm run typecheck      # tsc --noEmit for server + extension tsconfigs
-npm test               # vitest run (server pure-logic tests)
-npm run smoke          # E2E over real MCP stdio, no browser needed
+pnpm install           # install both workspaces (husky hooks install via prepare)
+pnpm run build         # build server (tsc) + extension (esbuild) across workspaces
+pnpm run lint          # eslint over the whole repo
+pnpm run format        # prettier --write (format:check for the CI-style check)
+pnpm run typecheck     # tsc --noEmit for server + extension tsconfigs
+pnpm test              # vitest run (server pure-logic tests)
+pnpm run smoke         # E2E over real MCP stdio, no browser needed
 ```
 
 ## Architecture
@@ -59,7 +59,7 @@ scripts/
 
 - `timeparse.ts`, `transcript.ts`, and `pickTrack` in `captions.ts` are pure and have
   unit tests. The bridge, db, and extension code are not unit-tested (they need real
-  sockets / Chrome / the page); use `npm run smoke` for the server path.
+  sockets / Chrome / the page); use `pnpm run smoke` for the server path.
 - Transcripts are fetched by the server directly, not by the extension: the web
   client's caption URLs are POT-gated (200 with an empty body) and innertube's
   `get_transcript` endpoint is dead (FAILED_PRECONDITION for every client), but
