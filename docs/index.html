@@ -292,22 +292,6 @@
       .btn-ghost:hover {
         border-color: var(--indigo);
       }
-      .soon {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        font-size: 0.86rem;
-        color: var(--text-muted);
-        padding: 7px 14px;
-        border: 1px dashed var(--border);
-        border-radius: 999px;
-      }
-      .soon .dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: var(--red);
-      }
 
       /* ---------- Sections ---------- */
       section {
@@ -786,6 +770,9 @@
       .ico-npm {
         height: 22px;
       }
+      .ico-store {
+        height: 21px;
+      }
       .copyright {
         font-size: 0.82rem;
         opacity: 0.75;
@@ -859,6 +846,16 @@
                 />
               </svg>
             </a>
+            <a
+              href="https://chromewebstore.google.com/detail/playback-mcp/nggfclklnclpmoclihggncjhccbecbed"
+              aria-label="Playback MCP on the Chrome Web Store"
+            >
+              <svg class="ico-store" viewBox="0 0 24 24" fill="#4285F4" aria-hidden="true">
+                <path
+                  d="M12 0C8.21 0 4.831 1.757 2.632 4.501l3.953 6.848A5.454 5.454 0 0 1 12 6.545h10.691A12 12 0 0 0 12 0zM1.931 5.47A11.943 11.943 0 0 0 0 12c0 6.012 4.42 10.991 10.189 11.864l3.953-6.847a5.45 5.45 0 0 1-6.865-2.29zm13.342 2.166a5.446 5.446 0 0 1 1.45 7.09l.002.001h-.002l-5.344 9.257c.206.01.413.016.621.016 6.627 0 12-5.373 12-12 0-1.54-.29-3.011-.818-4.364zM12 16.364a4.364 4.364 0 1 1 0-8.728 4.364 4.364 0 0 1 0 8.728Z"
+                />
+              </svg>
+            </a>
           </span>
         </nav>
       </div>
@@ -925,7 +922,17 @@
             </svg>
             Install
           </a>
-          <span class="soon"><span class="dot"></span> Chrome Web Store — coming soon</span>
+          <a
+            class="btn btn-ghost"
+            href="https://chromewebstore.google.com/detail/playback-mcp/nggfclklnclpmoclihggncjhccbecbed"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path
+                d="M12 0C8.21 0 4.831 1.757 2.632 4.501l3.953 6.848A5.454 5.454 0 0 1 12 6.545h10.691A12 12 0 0 0 12 0zM1.931 5.47A11.943 11.943 0 0 0 0 12c0 6.012 4.42 10.991 10.189 11.864l3.953-6.847a5.45 5.45 0 0 1-6.865-2.29zm13.342 2.166a5.446 5.446 0 0 1 1.45 7.09l.002.001h-.002l-5.344 9.257c.206.01.413.016.621.016 6.627 0 12-5.373 12-12 0-1.54-.29-3.011-.818-4.364zM12 16.364a4.364 4.364 0 1 1 0-8.728 4.364 4.364 0 0 1 0 8.728Z"
+              />
+            </svg>
+            Chrome Web Store
+          </a>
           <a class="btn btn-ghost" href="https://github.com/BlaiseMoses01/playback-mcp">
             View on GitHub
           </a>
@@ -1432,15 +1439,19 @@
             </div>
           </li>
           <li>
-            <h3>Load the extension</h3>
+            <h3>Add the extension</h3>
             <p>
-              Download <span class="inline-code">playback-mcp-extension-vX.Y.Z.zip</span> from the
-              <a href="https://github.com/BlaiseMoses01/playback-mcp/releases/latest"
-                >latest release</a
+              Install
+              <a
+                href="https://chromewebstore.google.com/detail/playback-mcp/nggfclklnclpmoclihggncjhccbecbed"
+                >Playback MCP from the Chrome Web Store</a
               >
-              and unzip it. In <span class="inline-code">chrome://extensions</span>, enable
-              <strong>Developer mode</strong>, click <strong>Load unpacked</strong>, and pick the
-              unzipped folder.
+              — one click, and it stays up to date automatically.
+            </p>
+            <p class="note">
+              Running a custom <span class="inline-code">YT_BRIDGE_PORT</span>? The Web Store build
+              bakes in port 8765, so build from source instead — see the
+              <a href="https://github.com/BlaiseMoses01/playback-mcp#build-from-source">README</a>.
             </p>
           </li>
           <li>
@@ -1566,6 +1577,16 @@
             <svg class="ico-npm" viewBox="0 0 24 24" fill="#CB3837" aria-hidden="true">
               <path
                 d="M1.763 0C.786 0 0 .786 0 1.763v20.474C0 23.214.786 24 1.763 24h20.474c.977 0 1.763-.786 1.763-1.763V1.763C24 .786 23.214 0 22.237 0zM5.13 5.323l13.837.019-.009 13.836h-3.464l.01-10.382h-3.456L12.08 19.17H5.113z"
+              />
+            </svg>
+          </a>
+          <a
+            href="https://chromewebstore.google.com/detail/playback-mcp/nggfclklnclpmoclihggncjhccbecbed"
+            aria-label="Playback MCP on the Chrome Web Store"
+          >
+            <svg class="ico-store" viewBox="0 0 24 24" fill="#4285F4" aria-hidden="true">
+              <path
+                d="M12 0C8.21 0 4.831 1.757 2.632 4.501l3.953 6.848A5.454 5.454 0 0 1 12 6.545h10.691A12 12 0 0 0 12 0zM1.931 5.47A11.943 11.943 0 0 0 0 12c0 6.012 4.42 10.991 10.189 11.864l3.953-6.847a5.45 5.45 0 0 1-6.865-2.29zm13.342 2.166a5.446 5.446 0 0 1 1.45 7.09l.002.001h-.002l-5.344 9.257c.206.01.413.016.621.016 6.627 0 12-5.373 12-12 0-1.54-.29-3.011-.818-4.364zM12 16.364a4.364 4.364 0 1 1 0-8.728 4.364 4.364 0 0 1 0 8.728Z"
               />
             </svg>
           </a>

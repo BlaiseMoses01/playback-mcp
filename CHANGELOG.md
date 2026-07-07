@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.6] - 2026-07-06
+
+### Changed
+
+- The npm package homepage now points to the docs/landing site
+  (`https://blaisemoses01.github.io/playback-mcp/`) instead of the GitHub readme.
+- README, docs site, and Chrome Web Store promo copy updates.
+
+### Added
+
+- Repository governance: a CODEOWNERS file, a pull request template, and expanded
+  contributing guidelines.
+
 ## [0.2.5] - 2026-07-05
 
 ### Changed
@@ -100,7 +113,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   workflows; Dependabot for GitHub Actions and npm; husky + lint-staged pre-commit hooks.
 - Project docs: README, CONTRIBUTING, SECURITY, AGENTS/CLAUDE guidance, and a PR template.
 
-[Unreleased]: https://github.com/BlaiseMoses01/playback-mcp/compare/v0.2.5...HEAD
+[Unreleased]: https://github.com/BlaiseMoses01/playback-mcp/compare/v0.2.6...HEAD
+[0.2.6]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.6
 [0.2.5]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.5
 [0.2.4]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.4
 [0.2.3]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.3

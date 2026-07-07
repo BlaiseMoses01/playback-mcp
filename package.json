@@ -7,7 +7,7 @@
     "type": "git",
     "url": "git+https://github.com/BlaiseMoses01/playback-mcp.git"
   },
-  "homepage": "https://github.com/BlaiseMoses01/playback-mcp#readme",
+  "homepage": "https://blaisemoses01.github.io/playback-mcp/",
   "bugs": "https://github.com/BlaiseMoses01/playback-mcp/issues",
   "type": "module",
   "packageManager": "pnpm@11.9.0",

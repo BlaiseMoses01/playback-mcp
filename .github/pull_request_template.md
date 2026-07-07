@@ -28,3 +28,4 @@
 - [ ] `pnpm test` passes (and `pnpm run smoke` if the server protocol changed)
 - [ ] Updated `README.md` / `CHANGELOG.md` if behavior changed
 - [ ] No secrets or local state committed
+- [ ] Assigned this PR to @BlaiseMoses01 (review is auto-requested via CODEOWNERS)

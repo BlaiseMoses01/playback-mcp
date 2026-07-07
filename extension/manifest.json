@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Playback MCP",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Control YouTube playback from local AI agents and MCP-compatible tools like Claude Code, Codex, etc.",
   "icons": {
     "16": "icons/icon16.png",

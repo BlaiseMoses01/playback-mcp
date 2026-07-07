@@ -1,6 +1,6 @@
 {
   "name": "playback-mcp",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "MCP server that controls YouTube playback in your browser via the Playback MCP extension — play, seek, loop sections, save timestamps, build a video library",
   "license": "MIT",
   "author": "Blaise Moses <bamoses2001@gmail.com>",
@@ -9,7 +9,7 @@
     "url": "git+https://github.com/BlaiseMoses01/playback-mcp.git",
     "directory": "server"
   },
-  "homepage": "https://github.com/BlaiseMoses01/playback-mcp#readme",
+  "homepage": "https://blaisemoses01.github.io/playback-mcp/",
   "bugs": "https://github.com/BlaiseMoses01/playback-mcp/issues",
   "type": "module",
   "bin": {
