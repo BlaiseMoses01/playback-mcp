@@ -14,6 +14,7 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/playback-mcp"><img src="https://img.shields.io/npm/v/playback-mcp?color=cb3837&logo=npm" alt="npm"></a>
+  <a href="https://chromewebstore.google.com/detail/playback-mcp/nggfclklnclpmoclihggncjhccbecbed"><img src="https://img.shields.io/chrome-web-store/v/nggfclklnclpmoclihggncjhccbecbed?logo=googlechrome&logoColor=white&label=Chrome%20Web%20Store" alt="Chrome Web Store"></a>
   <a href="https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/ci.yml"><img src="https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/codeql.yml"><img src="https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/codeql.yml/badge.svg" alt="CodeQL"></a>
   <a href="https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/gitleaks.yml"><img src="https://github.com/BlaiseMoses01/playback-mcp/actions/workflows/gitleaks.yml/badge.svg" alt="Secret Scanning"></a>
@@ -77,10 +78,10 @@ The released way — no clone, no build. Requires **Node 24 LTS** (≥ 23.4; use
    npm i -g playback-mcp
    ```
 
-2. **Load the extension.** Download `playback-mcp-extension-vX.Y.Z.zip` from the
-   [latest release](https://github.com/BlaiseMoses01/playback-mcp/releases/latest) and unzip
-   it. In `chrome://extensions`, enable **Developer mode**, click **Load unpacked**, and pick
-   the unzipped folder.
+2. **Add the extension** — install
+   [Playback MCP from the Chrome Web Store](https://chromewebstore.google.com/detail/playback-mcp/nggfclklnclpmoclihggncjhccbecbed).
+   One click, and it stays up to date automatically. (Running a custom `YT_BRIDGE_PORT`? The
+   Web Store build bakes in port 8765 — [build from source](#build-from-source) instead.)
 
 3. **Register it with your MCP client.** Any MCP client works — for Claude Code:
 
