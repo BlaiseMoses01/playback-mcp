@@ -26,6 +26,19 @@ Load `extension/dist` unpacked in Chrome (`chrome://extensions` → Developer mo
 Load unpacked) and register the server with
 `claude mcp add playback-mcp -- node /abs/path/server/dist/index.js`.
 
+## Working on a change
+
+Day-to-day work happens on `dev`; `main` is release-only. So:
+
+1. Branch off `dev` (e.g. `feature/<short-desc>` or `fix/<short-desc>`).
+2. Keep each PR focused on one logical change — smaller PRs review faster.
+3. Open your PR against **`dev`**, not `main` (`main` only receives release PRs from `dev`).
+4. Link any related issue in the description (e.g. `Fixes #123`).
+5. **Assign the PR to @BlaiseMoses01.** Review is auto-requested from him via
+   [CODEOWNERS](.github/CODEOWNERS), so you don't need to add a reviewer manually — but
+   please still set him as the **assignee**.
+6. Complete the PR template checklist honestly before marking it ready for review.
+
 ## Before opening a PR
 
 Run the same gate CI enforces (all from the repo root):
@@ -45,7 +58,8 @@ ESLint + Prettier on staged files automatically.
 - Update `README.md` / `CHANGELOG.md` if behavior or configuration changed.
 - Never commit secrets or local state (e.g. the SQLite `library.db`).
 
-PRs target `main`. The [PR template](.github/pull_request_template.md) covers the checklist.
+PRs target `dev` (see [Working on a change](#working-on-a-change)). The
+[PR template](.github/pull_request_template.md) covers the checklist.
 
 ## Releasing
 
