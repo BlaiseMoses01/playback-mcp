@@ -140,8 +140,8 @@ For development, or to run a custom `YT_BRIDGE_PORT` (the released extension bak
 8765 at build time):
 
 ```sh
-npm ci
-npm run build
+pnpm install
+pnpm run build
 ```
 
 1. Open `chrome://extensions`, enable **Developer mode**
@@ -164,7 +164,7 @@ npm run build
 ## Development
 
 ```sh
-npm run build
+pnpm run build
 node scripts/mcp-poke.mjs       # full smoke test over real MCP stdio, no browser needed
 node scripts/fake-extension.mjs # mock extension that acks all commands (for manual poking)
 ```
