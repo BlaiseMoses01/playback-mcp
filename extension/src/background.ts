@@ -86,9 +86,7 @@ async function execute(
   if (tabId === null)
     throw new Error('No YouTube tab is open for this session — use open_video first.');
   const response = (await chrome.tabs.sendMessage(tabId, { cmd, params })) as
-    | { ok: true; result: unknown }
-    | { ok: false; error: string }
-    | undefined;
+    { ok: true; result: unknown } | { ok: false; error: string } | undefined;
   if (!response)
     throw new Error(
       'The YouTube tab did not respond — it may still be loading; retry in a moment.',
