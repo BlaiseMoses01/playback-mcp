@@ -3,14 +3,34 @@ updates:
   # Keep the SHA-pinned actions in .github/workflows current.
   - package-ecosystem: 'github-actions'
     directory: '/'
+    # Land on dev; main only gets updates through the normal dev->main release PR.
+    target-branch: 'dev'
     schedule:
       interval: 'weekly'
     open-pull-requests-limit: 5
+    # Only propose releases old enough to clear the pnpm minimumReleaseAge policy
+    # that CI's `pnpm install --frozen-lockfile` enforces (~24h). Margin over that.
+    cooldown:
+      default-days: 3
+    groups:
+      # init + analyze must move together, or CodeQL fails with a version mismatch.
+      codeql:
+        patterns:
+          - 'github/codeql-action*'
 
   # Node deps via the pnpm workspace. A single root pnpm-lock.yaml covers both
   # workspaces (server + extension), so one entry at "/" updates the whole tree.
   - package-ecosystem: 'npm'
     directory: '/'
+    target-branch: 'dev'
     schedule:
       interval: 'weekly'
     open-pull-requests-limit: 5
+    cooldown:
+      default-days: 3
+    groups:
+      # The typescript-eslint packages release in lockstep; bump them as one PR.
+      typescript-eslint:
+        patterns:
+          - 'typescript-eslint'
+          - '@typescript-eslint/*'
