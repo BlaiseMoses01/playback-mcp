@@ -132,8 +132,7 @@ export function findVideos(query?: string): VideoRow[] {
 
 export function getVideoByYoutubeId(youtubeId: string): VideoRow | undefined {
   return db.prepare(`SELECT * FROM videos WHERE youtube_id = ?`).get(youtubeId) as unknown as
-    | VideoRow
-    | undefined;
+    VideoRow | undefined;
 }
 
 export function touchLastPlayed(id: number): void {
