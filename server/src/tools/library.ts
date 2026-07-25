@@ -55,10 +55,17 @@ export function registerLibraryTools(server: McpServer, bridge: Bridge): void {
     {
       description:
         'Open a video in the managed YouTube tab (reuses the existing tab). Accepts a saved title (fuzzy matched) or a raw YouTube URL. ' +
-        'If multiple library entries match, returns the candidates instead of guessing.',
-      inputSchema: { query: z.string().describe('Saved title fragment or YouTube URL') },
+        'If multiple library entries match, returns the candidates instead of guessing. ' +
+        'Set background:true when several sessions open videos at once, so they do not fight over the foreground.',
+      inputSchema: {
+        query: z.string().describe('Saved title fragment or YouTube URL'),
+        background: z
+          .boolean()
+          .optional()
+          .describe('Open without activating the tab or focusing the window (default false)'),
+      },
     },
-    handler(async ({ query }) => {
+    handler(async ({ query, background }) => {
       let ytId = db.parseYoutubeId(query);
       let row = ytId ? db.getVideoByYoutubeId(ytId) : undefined;
       if (!ytId) {
@@ -78,9 +85,11 @@ export function registerLibraryTools(server: McpServer, bridge: Bridge): void {
         row = matches[0];
         ytId = row.youtube_id;
       }
-      await bridge.send('load_video', { videoId: ytId });
+      await bridge.send('load_video', { videoId: ytId, background: background === true });
       if (row) db.touchLastPlayed(row.id);
-      return ok(`Opening "${row?.title ?? ytId}" in the YouTube tab.`);
+      return ok(
+        `Opening "${row?.title ?? ytId}" in the YouTube tab${background ? ' (background)' : ''}.`,
+      );
     }),
   );
 

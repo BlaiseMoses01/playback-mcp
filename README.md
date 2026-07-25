@@ -116,16 +116,31 @@ The released way — no clone, no build. Requires **Node 24 LTS** (≥ 23.4; use
 | `get_transcript`                                          | Caption transcript as `[m:ss] text` lines; pass `video` (URL, id, or saved title) to read a video without opening it               |
 | `search_transcript`                                       | Find a word/phrase in the transcript; returns timestamps with context — pair with `seek` to jump to a topic                        |
 | `get_chapters`                                            | The author's chapter markers as `{time, title}` — a cheap outline of a long video; empty when the video has none                   |
+| `list_playlist`                                           | The videos in a playlist as `{videoId, title, duration}` — pair with the transcript tools to study a whole series without a tab    |
 | `get_state`                                               | Full player state; works even when the extension is disconnected                                                                   |
 
 Time inputs are forgiving: `"90"`, `"1:30"`, `"1m30s"`, `"1:02:03"`; speeds accept `"0.75x"`.
+
+`get_transcript`, `search_transcript`, `get_chapters`, and `list_playlist` read from YouTube
+directly rather than from the page, so they work on any video or playlist without opening a
+tab — useful for studying something you never intend to watch.
+
+### Skills
+
+`skills/playlist-notes/` turns a playlist into one set of notes: enumerate it, read every
+transcript in parallel, synthesize by topic. Copy it into your client's skills directory
+(for Claude Code, `~/.claude/skills/` or a project's `.claude/skills/`).
 
 ## Safe by design
 
 The extension only reads and writes the `<video>` element's own properties — `currentTime`,
 `playbackRate`, `volume`, play/pause. It never clicks UI, never scrapes, and never automates
-navigation beyond opening a watch URL. Everything runs on `127.0.0.1`; your library lives in
-a local SQLite file and nothing is sent to any external server.
+navigation beyond opening a watch URL. Everything runs on `127.0.0.1`, and your library lives
+in a local SQLite file.
+
+Nothing is sent to a third-party server. The one outbound destination is YouTube itself: the
+read-only tools above fetch public captions, chapter markers, and playlist listings from
+youtube.com, unauthenticated and without your cookies.
 
 ## Configuration
 

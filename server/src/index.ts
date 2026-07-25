@@ -8,6 +8,7 @@ import { registerPlaybackTools } from './tools/playback.js';
 import { registerLoopTools } from './tools/loop.js';
 import { registerSequenceTools } from './tools/sequence.js';
 import { registerTranscriptTools } from './tools/transcript.js';
+import { registerPlaylistTools } from './tools/playlist.js';
 
 // IMPORTANT: stdout belongs to the MCP stdio transport — all logging goes to stderr.
 
@@ -62,6 +63,7 @@ registerPlaybackTools(server, bridge);
 registerLoopTools(server, bridge);
 registerSequenceTools(server, bridge);
 registerTranscriptTools(server, bridge);
+registerPlaylistTools(server);
 
 await server.connect(new StdioServerTransport());
 console.error('[playback-mcp] MCP server ready (stdio)');

@@ -81,7 +81,8 @@ async function execute(
   cmd: string,
   params: Record<string, unknown>,
 ): Promise<unknown> {
-  if (cmd === 'load_video') return loadVideo(sessionId, params as { videoId: string; t?: number });
+  if (cmd === 'load_video')
+    return loadVideo(sessionId, params as { videoId: string; t?: number; background?: boolean });
   const tabId = await getManagedTab(sessionId);
   if (tabId === null)
     throw new Error('No YouTube tab is open for this session — use open_video first.');
@@ -115,7 +116,7 @@ async function unbindSession(sessionId: string): Promise<void> {
   }
 }
 
-async function getManagedTab(sessionId: string): Promise<number | null> {
+async function getManagedTab(sessionId: string, adopt = true): Promise<number | null> {
   const tabs = await getSessionTabs();
   const bound = tabs[sessionId];
   if (typeof bound === 'number') {
@@ -126,7 +127,10 @@ async function getManagedTab(sessionId: string): Promise<number | null> {
       // tab was closed — fall through and adopt another
     }
   }
-  // Adopt a YouTube tab not already claimed by a different session.
+  // Adopting is for the single-session case, where taking over the tab the user is already
+  // looking at is the friendly thing to do. A background open skips it: several sessions
+  // starting at once would otherwise race for the same free tab and land on the same id.
+  if (!adopt) return null;
   const claimed = new Set(
     Object.entries(tabs)
       .filter(([s]) => s !== sessionId)
@@ -144,23 +148,28 @@ async function getManagedTab(sessionId: string): Promise<number | null> {
 
 async function loadVideo(
   sessionId: string,
-  params: { videoId: string; t?: number },
+  params: { videoId: string; t?: number; background?: boolean },
 ): Promise<unknown> {
   const t = params.t && params.t > 0 ? `&t=${Math.floor(params.t)}s` : '';
   const url = `https://www.youtube.com/watch?v=${params.videoId}${t}&autoplay=1`;
-  let tabId = await getManagedTab(sessionId);
+  // Several sessions opening at once must not each yank the foreground, so a background open
+  // neither activates its tab nor focuses its window.
+  const background = params.background === true;
+  let tabId = await getManagedTab(sessionId, !background);
   if (tabId === null) {
-    const tab = await chrome.tabs.create({ url });
+    const tab = await chrome.tabs.create({ url, active: !background });
     tabId = tab.id!;
   } else {
-    await chrome.tabs.update(tabId, { url, active: true });
+    await chrome.tabs.update(tabId, { url, active: !background });
   }
   await setSessionTab(sessionId, tabId);
-  try {
-    const tab = await chrome.tabs.get(tabId);
-    if (tab.windowId !== undefined) await chrome.windows.update(tab.windowId, { focused: true });
-  } catch {
-    // window focus is best-effort
+  if (!background) {
+    try {
+      const tab = await chrome.tabs.get(tabId);
+      if (tab.windowId !== undefined) await chrome.windows.update(tab.windowId, { focused: true });
+    } catch {
+      // window focus is best-effort
+    }
   }
   return { navigating: true, videoId: params.videoId };
 }

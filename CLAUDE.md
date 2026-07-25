@@ -48,6 +48,7 @@ server/src/
   transcript.ts   # pure: normalize/format/search caption payloads (unit-tested)
   captions.ts     # fetches captions from YouTube (innertube ANDROID /player → timedtext json3)
   chapters.ts     # fetches chapter markers (innertube WEB /next); pure parsers are unit-tested
+  playlist.ts     # enumerates a playlist (innertube ANDROID /browse + continuations, unit-tested)
   tools/          # MCP tool implementations (playback, library, loop, sequence, transcript, util)
 extension/src/
   background.ts   # service worker: WS client to the broker; keeps a managed tab per sessionId
@@ -73,6 +74,15 @@ scripts/
   `playerOverlays`/`markersMap` at all, so `chapters.ts` posts to the WEB `/next` endpoint
   instead. That one response carries the marker track, the description (used as a fallback
   when a video has no marker track), and the title — so chapters still cost one round-trip.
+- Playlists need the ANDROID client (`playlist.ts`): WEB `/browse` returns an empty shell that
+  lazy-loads its rows. Paging is the legacy `nextContinuationData` style — 20 entries on the
+  first page, 60 per continuation — and `fetchPlaylist` follows it, so a `limit` (not the API)
+  is what bounds the result. Report `truncated` rather than implying a partial list is whole.
+- A **parallel playback swarm** needs no protocol change: each `playback-mcp` process is its own
+  session and gets its own tab, so N subagents drive N videos. Pass `background: true` to
+  `open_video` for that case — the default activates the tab and focuses the window, which N
+  concurrent opens would turn into N screen jumps, and background mode also skips tab adoption
+  so concurrent sessions can't race onto the same free tab.
 - One **broker** daemon owns the localhost port; every `playback-mcp` server connects to it
   as a client and auto-spawns it if it isn't running (a duplicate broker exits on
   `EADDRINUSE`). The broker idle-exits ~60s after its last client disconnects. Each server
