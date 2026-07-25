@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { parsePlaylistPage, parsePlaylistTitle, parsePlaylistId } from './playlist.js';
+import {
+  parsePlaylistPage,
+  parsePlaylistTitle,
+  parsePlaylistId,
+  parsePlaylistTotal,
+} from './playlist.js';
 
 const row = (videoId: string, title: string, lengthSeconds?: string) => ({
   playlistVideoRenderer: {
@@ -97,6 +102,38 @@ describe('parsePlaylistId', () => {
     expect(parsePlaylistId('https://www.youtube.com/watch?v=dQw4w9WgXcQ')).toBeNull();
     expect(parsePlaylistId('dQw4w9WgXcQ')).toBeNull();
     expect(parsePlaylistId('not a url')).toBeNull();
+  });
+});
+
+describe('parsePlaylistTotal', () => {
+  // The real count sits ~12 levels deep in a viewModel tree; nesting depth must not matter.
+  const headerWith = (...texts: string[]) => ({
+    header: {
+      pageHeaderRenderer: {
+        content: {
+          viewModel: {
+            metadata: {
+              metadataRows: [{ metadataParts: texts.map((t) => ({ text: { content: t } })) }],
+            },
+          },
+        },
+      },
+    },
+  });
+
+  it('reads the video count from the header metadata', () => {
+    expect(parsePlaylistTotal(headerWith('3Blue1Brown', '241 videos'))).toBe(241);
+  });
+
+  it('handles a singular count and thousands separators', () => {
+    expect(parsePlaylistTotal(headerWith('1 video'))).toBe(1);
+    expect(parsePlaylistTotal(headerWith('1,204 videos'))).toBe(1204);
+  });
+
+  it('returns null when the header does not report a count', () => {
+    expect(parsePlaylistTotal(headerWith('Updated yesterday', '12,000 views'))).toBeNull();
+    expect(parsePlaylistTotal({ header: {} })).toBeNull();
+    expect(parsePlaylistTotal({})).toBeNull();
   });
 });
 

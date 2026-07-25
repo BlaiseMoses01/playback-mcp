@@ -15,6 +15,8 @@ export interface PlaylistEntry {
 export interface Playlist {
   title: string;
   entries: PlaylistEntry[];
+  /** Videos YouTube says the playlist holds; null when the header doesn't report it. */
+  total: number | null;
   /** True when a `limit` cut the list short — callers must say so rather than imply completeness. */
   truncated: boolean;
 }
@@ -75,6 +77,25 @@ export function parsePlaylistTitle(json: unknown): string {
   return typeof header === 'string' ? header : '';
 }
 
+const COUNT_RE = /^([\d,.]+)\s+videos?$/i;
+
+/**
+ * How many videos the playlist header claims, so a caller can decide whether reading all of
+ * them is reasonable *before* paging through them. Found by scanning the header's metadata
+ * strings rather than by path: it sits about a dozen levels deep in a viewModel tree and is
+ * missing entirely on some playlists, so null is a normal answer.
+ */
+export function parsePlaylistTotal(json: unknown): number | null {
+  for (const text of deepFind((json as any)?.header, 'content')) {
+    if (typeof text !== 'string') continue;
+    const m = COUNT_RE.exec(text.trim());
+    if (!m) continue;
+    const n = Number(m[1].replace(/[,.]/g, ''));
+    if (Number.isFinite(n)) return n;
+  }
+  return null;
+}
+
 /**
  * One page of playlist rows plus the token for the next page. Pure — the renderers are found
  * by key rather than by a fixed path, so a layout reshuffle doesn't break enumeration.
@@ -108,6 +129,7 @@ export async function fetchPlaylist(playlistId: string, limit = 100): Promise<Pl
   const entries: PlaylistEntry[] = [];
   const seen = new Set<string>();
   let title = '';
+  let total: number | null = null;
   let continuation: string | null = null;
   let truncated = false;
 
@@ -124,6 +146,7 @@ export async function fetchPlaylist(playlistId: string, limit = 100): Promise<Pl
     if (!res.ok) throw new Error(`YouTube playlist request failed: HTTP ${res.status}`);
     const data = await res.json();
     if (!title) title = parsePlaylistTitle(data);
+    if (total === null) total = parsePlaylistTotal(data);
 
     const page1 = parsePlaylistPage(data);
     if (page === 0 && page1.entries.length === 0)
@@ -143,5 +166,5 @@ export async function fetchPlaylist(playlistId: string, limit = 100): Promise<Pl
     if (truncated || !continuation) break;
   }
 
-  return { title: title || playlistId, entries, truncated };
+  return { title: title || playlistId, entries, total, truncated };
 }

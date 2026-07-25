@@ -1,70 +1,96 @@
 ---
 name: playlist-notes
-description: Study a whole YouTube playlist or series at once — enumerate it, read every transcript in parallel, and synthesize one set of notes. Use when asked for notes/a summary/an outline of a playlist, a course, or a multi-part series.
+description: Study a whole YouTube playlist or series at once — enumerate it, fan out cheap subagents to read every transcript in parallel, and synthesize one set of notes. Use when asked for notes/a summary/an outline of a playlist, a course, or a multi-part series.
 ---
 
 # Notes from a playlist
 
-Creators spread one topic across many videos. This turns a playlist into one coherent
-set of notes without watching — or even opening — anything.
+Creators spread one topic across many videos. This turns a playlist into one coherent set of
+notes without watching — or even opening — anything.
 
-## The shape of the work
+The shape is **map-reduce**: a cheap model extracts from each video in parallel, and you do
+the expensive synthesis once, at the end. Reading 30 transcripts yourself would blow your
+context long before you got to the thinking.
 
-`list_playlist` gives you the videos; `get_chapters` and `get_transcript` read each one
-**headlessly**, with no tab and no browser. That means the per-video work is independent
-and should be fanned out, not done in a loop.
-
-## 1. Enumerate
+## 1. Enumerate and agree on scope
 
 ```
 list_playlist(playlist: "<URL or id>")
 ```
 
 Accepts a playlist URL, a watch URL containing `list=`, or a bare id. Returns
-`{playlist, count, videos: [{videoId, title, duration}]}`.
+`{playlist, count, total?, videos: [{videoId, title, duration}]}`.
 
-Check the response for a `truncated` field — it means the playlist has more videos than
-were returned. Either raise `limit` or tell the user what you covered. **Never present a
-truncated list as the whole playlist.**
+Read the response carefully before doing anything else:
 
-If the playlist is long, confirm scope with the user before reading everything —
-150 transcripts is a lot of work to do uninvited.
+- **`total`** is how many videos the playlist actually holds. It's absent for some playlists.
+- **`truncated`** means you got fewer than all of them; raise `limit` for the rest.
+- No `truncated` field means the list you have is complete, even when `total` is absent.
 
-## 2. Read every video in parallel
+**Stop and check with the user when the playlist is large** — say, more than ~15 videos, or
+more than a couple of hours of total runtime. Tell them the count and roughly what it will
+cost, and offer the alternatives:
 
-Fan out one subagent per video. Each one gets a `videoId` from step 1 and does:
+- all of it,
+- the first N,
+- only the videos whose titles match what they actually care about.
 
-```
-get_chapters(video: "<videoId>")      # cheap outline; may be empty, that's normal
-get_transcript(video: "<videoId>")    # windowed with start/end for long videos
-```
+A 241-video channel archive is not a reasonable thing to read uninvited.
 
-Have each subagent return **structured notes, not raw transcript** — key claims,
-definitions, and the timestamps worth revisiting. Raw transcripts will swamp your context;
-a 1-hour video is far more than the 12,000-character cap `get_transcript` returns at once,
-so long videos need `start`/`end` windows or `search_transcript` for specific topics.
+## 2. Fan out — one cheap agent per video
+
+Spawn a subagent per video **on a small, fast model** (Haiku or equivalent). Per-video
+extraction is mechanical: read a transcript, pull out the claims. It does not need a
+frontier model, and using one for 30 videos is slow and wasteful.
+
+Batch the fan-out — roughly 5–10 at a time rather than all at once — so you can show progress
+and abandon the run cheaply if the early results come back useless.
+
+Because the transcript tools are **headless**, no subagent opens a tab and none of them
+contend over the browser. They can all run at once safely.
+
+Give every subagent the same instruction and an explicit output contract:
+
+> You are extracting study notes from one YouTube video. Do not open or play anything.
+>
+> 1. `get_video_outline(video: "<videoId>")` — the section map, word counts, and previews.
+> 2. `get_transcript(video: "<videoId>", start: ..., end: ...)` for the sections that carry
+>    real content. Skip intros, sponsor reads, and sign-offs.
+>
+> Return **only** this, and nothing else:
+>
+> - `title` — the video's title
+> - `summary` — 2–3 sentences on what this video covers
+> - `keyPoints` — 3–8 bullets, each with the timestamp where it's explained
+> - `terms` — terms or concepts defined here, with one-line definitions
+> - `connections` — anything explicitly building on or referring to another video
+>
+> Never return raw transcript. If the captions are garbled and you can't tell what was said,
+> say so rather than guessing.
+
+That contract is what keeps the reduce step affordable: you get back a few hundred words per
+video instead of tens of thousands.
 
 ## 3. Synthesize
 
-Merge into one document organized by _topic_, not by video, since the whole point is that
-the creator split one topic across many. For every claim, cite the video title and
-timestamp so the user can jump straight there.
+Now do the part that needs your judgment. Merge the returned notes into one document
+organized by **topic, not by video** — the whole premise is that the creator split one topic
+across many.
 
-## Citing so the user can actually navigate
+- Lead with the throughline: what does the series as a whole teach?
+- Fold duplicate explanations together, and note where videos disagree or where a later one
+  supersedes an earlier one.
+- Use `connections` to reconstruct the intended order, which is not always the playlist order.
+- Cite every claim as _video title + timestamp_ so the user can jump straight to it.
+- Call out gaps — things the series references but never explains.
 
-Timestamps from `get_chapters`/`search_transcript` feed directly into `seek` and
-`loop_section`. When a moment matters, give the user the video and the time — and offer to
-open it with `open_video`.
+If any subagent flagged bad captions, carry that caveat through instead of quietly dropping it.
 
-## Watching in parallel (optional)
+## Navigating afterwards
 
-If the user genuinely wants several videos _playing_ at once rather than just read, each
-concurrent session drives its own tab. Pass `background: true` to `open_video` so the
-sessions don't fight over the foreground:
+Timestamps feed directly into `seek` and `loop_section`. When a moment matters, offer to
+`open_video` and jump there.
 
-```
-open_video(query: "<videoId>", background: true)
-```
-
-Without that flag every open activates its tab and focuses its window, so N parallel opens
-will yank the user's screen around N times.
+If the user wants several videos actually _playing_ at once, each concurrent session drives
+its own tab — pass `background: true` to `open_video` so they don't fight over the
+foreground. Without it, every open activates its tab and focuses its window.

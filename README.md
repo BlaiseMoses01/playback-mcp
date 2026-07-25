@@ -101,24 +101,24 @@ The released way — no clone, no build. Requires **Node 24 LTS** (≥ 23.4; use
 
 ## Tools
 
-| Tool                                                      | What it does                                                                                                                       |
-| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `play` / `pause`                                          | Resume (optionally from a time/label) or pause                                                                                     |
-| `seek`                                                    | Jump to a time (`"1:30"`, `"90"`, `"1m30s"`) or a saved timestamp label                                                            |
-| `set_speed`                                               | 0.25×–2× playback rate                                                                                                             |
-| `set_volume`                                              | Absolute 0–100 or relative `"+10"`/`"-10"`                                                                                         |
-| `loop_section`                                            | Loop a section N times, optionally with per-pass speeds (e.g. 0.5 → 0.75 → 1.0). Returns immediately; the loop runs in the browser |
-| `stop_loop`                                               | Cancel the active loop                                                                                                             |
-| `play_sequence`                                           | Play a list of clips back-to-back, skipping the gaps between them. Returns immediately; runs in the browser                        |
-| `stop_sequence`                                           | Cancel the active clip sequence                                                                                                    |
-| `save_video` / `find_videos` / `open_video`               | Build and search a library of saved videos; open them in a managed tab                                                             |
-| `save_timestamp` / `list_timestamps` / `delete_timestamp` | Named positions and loopable sections per video                                                                                    |
-| `get_transcript`                                          | Caption transcript as `[m:ss] text` lines; pass `video` (URL, id, or saved title) to read a video without opening it               |
-| `search_transcript`                                       | Find a word/phrase in the transcript; returns timestamps with context — pair with `seek` to jump to a topic                        |
-| `get_chapters`                                            | The author's chapter markers as `{time, title}` — a cheap outline of a long video; empty when the video has none                   |
-| `list_playlist`                                           | The videos in a playlist as `{videoId, title, duration}` — pair with the transcript tools to study a whole series without a tab    |
-| `get_video_outline`                                       | Study map: each chapter's time range, word count, and a preview of what's said — plus the moments YouTube marked for quizzes       |
-| `get_state`                                               | Full player state; works even when the extension is disconnected                                                                   |
+| Tool                                                      | What it does                                                                                                                        |
+| --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `play` / `pause`                                          | Resume (optionally from a time/label) or pause                                                                                      |
+| `seek`                                                    | Jump to a time (`"1:30"`, `"90"`, `"1m30s"`) or a saved timestamp label                                                             |
+| `set_speed`                                               | 0.25×–2× playback rate                                                                                                              |
+| `set_volume`                                              | Absolute 0–100 or relative `"+10"`/`"-10"`                                                                                          |
+| `loop_section`                                            | Loop a section N times, optionally with per-pass speeds (e.g. 0.5 → 0.75 → 1.0). Returns immediately; the loop runs in the browser  |
+| `stop_loop`                                               | Cancel the active loop                                                                                                              |
+| `play_sequence`                                           | Play a list of clips back-to-back, skipping the gaps between them. Returns immediately; runs in the browser                         |
+| `stop_sequence`                                           | Cancel the active clip sequence                                                                                                     |
+| `save_video` / `find_videos` / `open_video`               | Build and search a library of saved videos; open them in a managed tab                                                              |
+| `save_timestamp` / `list_timestamps` / `delete_timestamp` | Named positions and loopable sections per video                                                                                     |
+| `get_transcript`                                          | Caption transcript as `[m:ss] text` lines; pass `video` (URL, id, or saved title) to read a video without opening it                |
+| `search_transcript`                                       | Find a word/phrase in the transcript; returns timestamps with context — pair with `seek` to jump to a topic                         |
+| `get_chapters`                                            | The author's chapter markers as `{time, title}` — a cheap outline of a long video; empty when the video has none                    |
+| `list_playlist`                                           | The videos in a playlist as `{videoId, title, duration}`, plus its `total` — pair with the transcript tools to study a whole series |
+| `get_video_outline`                                       | Study map: each chapter's time range, word count, and a preview of what's said — plus the moments YouTube marked for quizzes        |
+| `get_state`                                               | Full player state; works even when the extension is disconnected                                                                    |
 
 Time inputs are forgiving: `"90"`, `"1:30"`, `"1m30s"`, `"1:02:03"`; speeds accept `"0.75x"`.
 
@@ -131,8 +131,9 @@ tab — useful for studying something you never intend to watch.
 Copy these into your client's skills directory (for Claude Code, `~/.claude/skills/` or a
 project's `.claude/skills/`):
 
-- **`skills/playlist-notes/`** — turns a playlist into one set of notes: enumerate it, read
-  every transcript in parallel, synthesize by topic.
+- **`skills/playlist-notes/`** — turns a playlist into one set of notes: enumerate it, fan out
+  cheap subagents to read every transcript in parallel, then synthesize by topic. Map-reduce,
+  so a 30-video series doesn't have to fit in one context.
 - **`skills/video-quiz/`** — turns a video into self-check questions for a viewer, or
   Studio-ready chapter markers and quiz drafts for the creator who made it.
 

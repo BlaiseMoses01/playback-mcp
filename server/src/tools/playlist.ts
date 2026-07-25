@@ -34,12 +34,19 @@ export function registerPlaylistTools(server: McpServer): void {
           `"${playlist}" does not look like a YouTube playlist URL or id. A playlist URL contains "list=".`,
         );
       const result = await fetchPlaylist(id, limit ?? DEFAULT_LIMIT);
+      const remaining = result.total === null ? null : result.total - result.entries.length;
       return ok({
         playlist: result.title,
         count: result.entries.length,
+        ...(result.total === null ? {} : { total: result.total }),
         ...(result.truncated
           ? {
-              truncated: `Stopped at ${result.entries.length} videos — the playlist has more. Raise limit to see the rest.`,
+              truncated:
+                `Returned ${result.entries.length} of ` +
+                `${result.total === null ? 'more' : result.total} videos` +
+                `${remaining === null ? '' : ` — ${remaining} not shown`}. ` +
+                'Raise limit for the rest. Before reading them all, check with the user: ' +
+                'one transcript per video is a lot of work and a lot of context.',
             }
           : {}),
         videos: result.entries.map((e) => ({

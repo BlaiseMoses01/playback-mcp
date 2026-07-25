@@ -79,8 +79,11 @@ scripts/
   reports them as positions and says as much rather than implying it has the questions.
 - Playlists need the ANDROID client (`playlist.ts`): WEB `/browse` returns an empty shell that
   lazy-loads its rows. Paging is the legacy `nextContinuationData` style — 20 entries on the
-  first page, 60 per continuation — and `fetchPlaylist` follows it, so a `limit` (not the API)
-  is what bounds the result. Report `truncated` rather than implying a partial list is whole.
+  first page, 60 per continuation — and `fetchPlaylist` follows it to the end, so a `limit`
+  (not the API) is what bounds the result. It also reports `total` from the header when
+  present, so a caller can weigh the cost before reading everything; `total` is null on some
+  playlists, and `truncated: false` is what proves a list is complete. Report `truncated`
+  rather than implying a partial list is whole.
 - A **parallel playback swarm** needs no protocol change: each `playback-mcp` process is its own
   session and gets its own tab, so N subagents drive N videos. Pass `background: true` to
   `open_video` for that case — the default activates the tab and focuses the window, which N
