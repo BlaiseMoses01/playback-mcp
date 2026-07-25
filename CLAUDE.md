@@ -64,8 +64,10 @@ scripts/
   client's caption URLs are POT-gated (200 with an empty body) and innertube's
   `get_transcript` endpoint is dead (FAILED_PRECONDITION for every client), but
   `/player` with an ANDROID client context still returns POT-exempt caption URLs.
-  The extension only supplies the current videoId via `get_state`. The smoke test
-  skips the transcript tools so it stays offline-safe.
+  Because the fetch needs only a videoId, the transcript tools work headlessly: `video`
+  accepts a URL/id/saved title and never touches the bridge (`resolveVideoTarget` in
+  `tools/util.ts`); the extension is consulted only when `video` is omitted. The smoke
+  test skips the transcript tools so it stays offline-safe.
 - One **broker** daemon owns the localhost port; every `playback-mcp` server connects to it
   as a client and auto-spawns it if it isn't running (a duplicate broker exits on
   `EADDRINUSE`). The broker idle-exits ~60s after its last client disconnects. Each server

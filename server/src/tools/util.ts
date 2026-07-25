@@ -91,3 +91,36 @@ export async function resolveVideoParam(bridge: Bridge, video?: string): Promise
     `Multiple videos match "${video}": ${matches.map((v) => v.title).join(', ')} — be more specific.`,
   );
 }
+
+/** A video to read metadata for, which need not be — and often isn't — open in a tab. */
+export interface VideoTarget {
+  videoId: string;
+  /** Known up front only for the open tab and the library; null means "ask the fetch". */
+  title: string | null;
+  fromOpenTab: boolean;
+}
+
+/**
+ * Resolve a `video` param for the read-only tools (transcript, chapters), which fetch from
+ * YouTube directly and so don't need a tab. A URL or id resolves without touching the bridge
+ * or the library; a saved title resolves through the library; omitting it uses the open tab.
+ */
+export async function resolveVideoTarget(bridge: Bridge, video?: string): Promise<VideoTarget> {
+  if (video && video.trim()) {
+    // A raw id/URL is deliberately not required to be in the library — reading a video is
+    // not a reason to save it. This is why we don't go through resolveVideoParam here.
+    const ytId = db.parseYoutubeId(video);
+    if (ytId) {
+      const row = db.getVideoByYoutubeId(ytId);
+      return { videoId: ytId, title: row?.title ?? null, fromOpenTab: false };
+    }
+    const row = await resolveVideoParam(bridge, video);
+    return { videoId: row.youtube_id, title: row.title, fromOpenTab: false };
+  }
+  const state = await getPlayerState(bridge);
+  if (!state.videoId)
+    throw new Error(
+      'No YouTube video is open in the managed tab — open_video first, or pass a video URL or id.',
+    );
+  return { videoId: state.videoId, title: state.title || null, fromOpenTab: true };
+}

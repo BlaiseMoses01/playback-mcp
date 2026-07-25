@@ -113,7 +113,7 @@ The released way — no clone, no build. Requires **Node 24 LTS** (≥ 23.4; use
 | `stop_sequence`                                           | Cancel the active clip sequence                                                                                                    |
 | `save_video` / `find_videos` / `open_video`               | Build and search a library of saved videos; open them in a managed tab                                                             |
 | `save_timestamp` / `list_timestamps` / `delete_timestamp` | Named positions and loopable sections per video                                                                                    |
-| `get_transcript`                                          | Caption transcript of the open video as `[m:ss] text` lines; optional `start`/`end` window and `lang`                              |
+| `get_transcript`                                          | Caption transcript as `[m:ss] text` lines; pass `video` (URL, id, or saved title) to read a video without opening it               |
 | `search_transcript`                                       | Find a word/phrase in the transcript; returns timestamps with context — pair with `seek` to jump to a topic                        |
 | `get_state`                                               | Full player state; works even when the extension is disconnected                                                                   |
 
@@ -159,8 +159,9 @@ pnpm run build
   They share a background broker daemon (`playback-mcp-broker`) that starts automatically on
   first use and shuts down ~a minute after the last session closes.
 - **"This video has no captions available" / transcript errors** — `get_transcript` and
-  `search_transcript` fetch captions straight from YouTube for the open video; some videos
-  genuinely have no captions, and `lang` must match an available track.
+  `search_transcript` fetch captions straight from YouTube rather than from the page, so they
+  work on any video whether or not it's open; some videos genuinely have no captions, and
+  `lang` must match an available track.
 
 ## Development
 
