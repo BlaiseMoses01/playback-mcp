@@ -47,6 +47,7 @@ server/src/
   timeparse.ts    # pure: parse/format times, rates, volumes from agent-supplied strings
   transcript.ts   # pure: normalize/format/search caption payloads (unit-tested)
   captions.ts     # fetches captions from YouTube (innertube ANDROID /player → timedtext json3)
+  chapters.ts     # fetches chapter markers (innertube WEB /next); pure parsers are unit-tested
   tools/          # MCP tool implementations (playback, library, loop, sequence, transcript, util)
 extension/src/
   background.ts   # service worker: WS client to the broker; keeps a managed tab per sessionId
@@ -68,6 +69,10 @@ scripts/
   accepts a URL/id/saved title and never touches the bridge (`resolveVideoTarget` in
   `tools/util.ts`); the extension is consulted only when `video` is omitted. The smoke
   test skips the transcript tools so it stays offline-safe.
+- Chapters are a _different_ endpoint from captions: the ANDROID `/player` payload has no
+  `playerOverlays`/`markersMap` at all, so `chapters.ts` posts to the WEB `/next` endpoint
+  instead. That one response carries the marker track, the description (used as a fallback
+  when a video has no marker track), and the title — so chapters still cost one round-trip.
 - One **broker** daemon owns the localhost port; every `playback-mcp` server connects to it
   as a client and auto-spawns it if it isn't running (a duplicate broker exits on
   `EADDRINUSE`). The broker idle-exits ~60s after its last client disconnects. Each server

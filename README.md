@@ -115,6 +115,7 @@ The released way — no clone, no build. Requires **Node 24 LTS** (≥ 23.4; use
 | `save_timestamp` / `list_timestamps` / `delete_timestamp` | Named positions and loopable sections per video                                                                                    |
 | `get_transcript`                                          | Caption transcript as `[m:ss] text` lines; pass `video` (URL, id, or saved title) to read a video without opening it               |
 | `search_transcript`                                       | Find a word/phrase in the transcript; returns timestamps with context — pair with `seek` to jump to a topic                        |
+| `get_chapters`                                            | The author's chapter markers as `{time, title}` — a cheap outline of a long video; empty when the video has none                   |
 | `get_state`                                               | Full player state; works even when the extension is disconnected                                                                   |
 
 Time inputs are forgiving: `"90"`, `"1:30"`, `"1m30s"`, `"1:02:03"`; speeds accept `"0.75x"`.

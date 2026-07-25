@@ -174,8 +174,8 @@ try {
   });
   await A.call('stop_sequence');
   await A.call('get_state');
-  // get_transcript/search_transcript are not exercised here: they fetch from YouTube
-  // directly (not via the bridge), and the smoke test must stay offline-safe.
+  // get_transcript/search_transcript/get_chapters are not exercised here: they fetch from
+  // YouTube directly (not via the bridge), and the smoke test must stay offline-safe.
   await A.call('delete_timestamp', { label: 'verse riff' });
   await A.call('seek', { to: 'nonexistent label' }); // expect graceful TOOL-ERROR listing saved labels
 

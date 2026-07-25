@@ -5,6 +5,7 @@ import { parseTime, formatTime } from '../timeparse.js';
 import { parseTranscript, formatTranscript, searchTranscript } from '../transcript.js';
 import type { Segment } from '../transcript.js';
 import { fetchCaptions } from '../captions.js';
+import { fetchChapters } from '../chapters.js';
 import { ok, handler, resolveVideoTarget } from './util.js';
 
 interface CachedTranscript {
@@ -103,6 +104,37 @@ export function registerTranscriptTools(server: McpServer, bridge: Bridge): void
       return ok({
         video: t.title,
         matches: matches.map((m) => ({ time: formatTime(m.start), context: m.context })),
+      });
+    }),
+  );
+
+  server.registerTool(
+    'get_chapters',
+    {
+      description:
+        "Get a video's chapter markers — the author's own outline of its structure, which is " +
+        'the cheapest way to understand a long video before reading its transcript. Each chapter ' +
+        'start feeds straight into seek or loop_section. Works on any video without opening it. ' +
+        'Many videos have no chapters; that is a normal empty result, not an error.',
+      inputSchema: {
+        video: z
+          .string()
+          .optional()
+          .describe('Video URL, id, or saved title — omit for the currently open video'),
+      },
+    },
+    handler(async ({ video }) => {
+      const target = await resolveVideoTarget(bridge, video);
+      const result = await fetchChapters(target.videoId);
+      const chapters = result.chapters;
+      const name = target.title || result.title;
+      if (chapters.length === 0)
+        return ok(
+          `"${name}" has no chapter markers. Use get_transcript or search_transcript to explore it instead.`,
+        );
+      return ok({
+        video: name,
+        chapters: chapters.map((c) => ({ time: formatTime(c.start), title: c.title })),
       });
     }),
   );
