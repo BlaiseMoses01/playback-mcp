@@ -9,9 +9,17 @@ import path from 'node:path';
 import WebSocket from 'ws';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
-// Hermetic library so the smoke test never touches the real user DB.
+// Hermetic library so the smoke test never touches the real user DB, and a dedicated port so
+// it never lands on the broker real Chrome is already using. The extension bundle hard-codes
+// 8765 at build time, so sharing that port lets the real extension displace the fake one
+// mid-run (the broker keeps only the newest) and the run fails on unrelated assertions.
 const dataDir = mkdtempSync(path.join(os.tmpdir(), 'playback-smoke-'));
-const childEnv = { ...process.env, PLAYBACK_MCP_DATA_DIR: dataDir };
+const port = process.env.YT_BRIDGE_PORT ?? 8799;
+const childEnv = {
+  ...process.env,
+  PLAYBACK_MCP_DATA_DIR: dataDir,
+  YT_BRIDGE_PORT: String(port),
+};
 
 // One broker owns the port; both servers connect to it as clients. Spawning it explicitly (rather
 // than relying on a server's auto-spawn) makes lifecycle deterministic and killable in `finally`.
@@ -126,7 +134,6 @@ try {
   // Security (#18): a browser web origin must be rejected at the WS handshake. Node clients
   // (the MCP bridge, the fake extension) send no Origin and are allowed; a web page sends an
   // unforgeable http/https Origin and must be turned away with a 403 (no 'open').
-  const port = process.env.YT_BRIDGE_PORT ?? 8765;
   const evilAccepted = await new Promise((resolve) => {
     const ws = new WebSocket(`ws://127.0.0.1:${port}`, { origin: 'https://evil.com' });
     ws.on('open', () => {
