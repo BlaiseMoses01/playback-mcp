@@ -74,6 +74,9 @@ scripts/
   `playerOverlays`/`markersMap` at all, so `chapters.ts` posts to the WEB `/next` endpoint
   instead. That one response carries the marker track, the description (used as a fallback
   when a video has no marker track), and the title — so chapters still cost one round-trip.
+  The same `markersMap` carries `QUIZ_MARKERS`, but only their timestamps: the marker `title`
+  is an empty object and the question text isn't in the payload, so `get_video_outline`
+  reports them as positions and says as much rather than implying it has the questions.
 - Playlists need the ANDROID client (`playlist.ts`): WEB `/browse` returns an empty shell that
   lazy-loads its rows. Paging is the legacy `nextContinuationData` style — 20 entries on the
   first page, 60 per continuation — and `fetchPlaylist` follows it, so a `limit` (not the API)

@@ -117,6 +117,7 @@ The released way — no clone, no build. Requires **Node 24 LTS** (≥ 23.4; use
 | `search_transcript`                                       | Find a word/phrase in the transcript; returns timestamps with context — pair with `seek` to jump to a topic                        |
 | `get_chapters`                                            | The author's chapter markers as `{time, title}` — a cheap outline of a long video; empty when the video has none                   |
 | `list_playlist`                                           | The videos in a playlist as `{videoId, title, duration}` — pair with the transcript tools to study a whole series without a tab    |
+| `get_video_outline`                                       | Study map: each chapter's time range, word count, and a preview of what's said — plus the moments YouTube marked for quizzes       |
 | `get_state`                                               | Full player state; works even when the extension is disconnected                                                                   |
 
 Time inputs are forgiving: `"90"`, `"1:30"`, `"1m30s"`, `"1:02:03"`; speeds accept `"0.75x"`.
@@ -127,9 +128,13 @@ tab — useful for studying something you never intend to watch.
 
 ### Skills
 
-`skills/playlist-notes/` turns a playlist into one set of notes: enumerate it, read every
-transcript in parallel, synthesize by topic. Copy it into your client's skills directory
-(for Claude Code, `~/.claude/skills/` or a project's `.claude/skills/`).
+Copy these into your client's skills directory (for Claude Code, `~/.claude/skills/` or a
+project's `.claude/skills/`):
+
+- **`skills/playlist-notes/`** — turns a playlist into one set of notes: enumerate it, read
+  every transcript in parallel, synthesize by topic.
+- **`skills/video-quiz/`** — turns a video into self-check questions for a viewer, or
+  Studio-ready chapter markers and quiz drafts for the creator who made it.
 
 ## Safe by design
 

@@ -2,7 +2,12 @@ import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { Bridge } from '../bridge.js';
 import { parseTime, formatTime } from '../timeparse.js';
-import { parseTranscript, formatTranscript, searchTranscript } from '../transcript.js';
+import {
+  parseTranscript,
+  formatTranscript,
+  searchTranscript,
+  buildOutline,
+} from '../transcript.js';
 import type { Segment } from '../transcript.js';
 import { fetchCaptions } from '../captions.js';
 import { fetchChapters } from '../chapters.js';
@@ -135,6 +140,70 @@ export function registerTranscriptTools(server: McpServer, bridge: Bridge): void
       return ok({
         video: name,
         chapters: chapters.map((c) => ({ time: formatTime(c.start), title: c.title })),
+      });
+    }),
+  );
+
+  server.registerTool(
+    'get_video_outline',
+    {
+      description:
+        "A study map of a video: every chapter with its time range, a preview of what's said in " +
+        'it, and how many words it contains — one call instead of paginating a whole transcript. ' +
+        "Use this to decide which sections matter, then get_transcript with that section's " +
+        'start/end for its full text. Also reports the moments YouTube marked for quiz questions. ' +
+        'Works on any video without opening it.',
+      inputSchema: {
+        video: z
+          .string()
+          .optional()
+          .describe('Video URL, id, or saved title — omit for the currently open video'),
+        lang: z
+          .string()
+          .optional()
+          .describe('Language code like "en" — omit for the default track'),
+      },
+    },
+    handler(async ({ video, lang }) => {
+      const target = await resolveVideoTarget(bridge, video);
+      // Chapters and captions are independent fetches; run them together rather than in series.
+      const [chapterResult, transcript] = await Promise.all([
+        fetchChapters(target.videoId),
+        resolveTranscript(bridge, video, lang),
+      ]);
+      const name = target.title || chapterResult.title;
+      const quizMoments = chapterResult.quizMoments.map(formatTime);
+
+      if (chapterResult.chapters.length === 0) {
+        return ok({
+          video: name,
+          chapters: [],
+          note:
+            'This video has no chapter markers, so there is no section map. Use get_transcript ' +
+            '(optionally windowed with start/end) or search_transcript to work through it.',
+          ...(quizMoments.length > 0 ? { quizMoments } : {}),
+        });
+      }
+
+      const outline = buildOutline(chapterResult.chapters, transcript.segments);
+      return ok({
+        video: name,
+        language: transcript.language,
+        sections: outline.map((s) => ({
+          start: formatTime(s.start),
+          end: s.end === null ? null : formatTime(s.end),
+          title: s.title,
+          words: s.wordCount,
+          preview: s.preview,
+        })),
+        ...(quizMoments.length > 0
+          ? {
+              quizMoments,
+              quizMomentsNote:
+                'Positions where YouTube placed quiz markers. The question text is not exposed by ' +
+                'the API — treat these as good places to put a comprehension check.',
+            }
+          : {}),
       });
     }),
   );

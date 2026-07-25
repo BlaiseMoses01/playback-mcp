@@ -58,6 +58,30 @@ export function parseChapters(nextJson: unknown): Chapter[] {
     .sort((a, b) => a.start - b.start);
 }
 
+/**
+ * Timestamps YouTube flagged as quiz moments. Only the positions are exposed — the marker's
+ * `title` is an empty object and the question text isn't in this payload — so these say
+ * *where* a comprehension check belongs, not what it asks.
+ */
+export function parseQuizMoments(nextJson: unknown): number[] {
+  const track = findMarkersMap(nextJson).find((m: any) => m?.key === 'QUIZ_MARKERS');
+  const markers = track?.value?.markers;
+  if (!Array.isArray(markers)) return [];
+  const seconds = markers
+    .map((m: any) => m?.markerRenderer?.timeRangeStartMillis)
+    .filter((ms: unknown): ms is number => typeof ms === 'number')
+    .map((ms: number) => ms / 1000)
+    .sort((a: number, b: number) => a - b);
+  // YouTube repeats markers on the same moment; keep the first of any cluster inside a second
+  // so the caller sees distinct places rather than the same one three times. Compared by
+  // distance, not by rounding — rounding splits 312.1 from 312.5 despite them being 0.4s apart.
+  const out: number[] = [];
+  for (const s of seconds) {
+    if (out.length === 0 || s - out[out.length - 1] >= 1) out.push(s);
+  }
+  return out;
+}
+
 function primaryContents(nextJson: any): any[] {
   const contents = nextJson?.contents?.twoColumnWatchNextResults?.results?.results?.contents;
   return Array.isArray(contents) ? contents : [];
@@ -115,6 +139,8 @@ export interface ChapterResult {
   /** Falls back to the videoId when /next doesn't carry a recognizable title. */
   title: string;
   chapters: Chapter[];
+  /** Seconds at which YouTube placed quiz markers; positions only, no question text. */
+  quizMoments: number[];
 }
 
 /**
@@ -135,5 +161,6 @@ export async function fetchChapters(videoId: string): Promise<ChapterResult> {
     title: extractTitle(data) || videoId,
     chapters:
       fromMarkers.length > 0 ? fromMarkers : parseDescriptionChapters(extractDescription(data)),
+    quizMoments: parseQuizMoments(data),
   };
 }

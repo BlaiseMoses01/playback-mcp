@@ -4,6 +4,7 @@ import {
   parseDescriptionChapters,
   extractDescription,
   extractTitle,
+  parseQuizMoments,
 } from './chapters.js';
 
 const chapter = (ms: number, title: unknown) => ({
@@ -149,6 +150,29 @@ describe('extractDescription', () => {
 
   it('returns an empty string when the shape is unrecognized', () => {
     expect(extractDescription({})).toBe('');
+  });
+});
+
+describe('parseQuizMoments', () => {
+  const quizWith = (markers: unknown[]) => nextWith([{ key: 'QUIZ_MARKERS', value: { markers } }]);
+  const marker = (ms: number) => ({ markerRenderer: { timeRangeStartMillis: ms, title: {} } });
+
+  it('returns marker positions in seconds, in order', () => {
+    expect(parseQuizMoments(quizWith([marker(45360), marker(9010)]))).toEqual([9.01, 45.36]);
+  });
+
+  it('collapses markers that land on the same second', () => {
+    expect(parseQuizMoments(quizWith([marker(312100), marker(312500), marker(312900)]))).toEqual([
+      312.1,
+    ]);
+  });
+
+  it('returns empty when the video has no quiz markers', () => {
+    expect(parseQuizMoments(quizWith([]))).toEqual([]);
+    expect(
+      parseQuizMoments(nextWith([{ key: 'DESCRIPTION_CHAPTERS', value: { chapters: [] } }])),
+    ).toEqual([]);
+    expect(parseQuizMoments({})).toEqual([]);
   });
 });
 

@@ -62,6 +62,47 @@ export function formatTranscript(
   return out;
 }
 
+export interface OutlineSection {
+  title: string;
+  start: number;
+  /** Where the section ends — the next chapter's start, or null for the last one. */
+  end: number | null;
+  /** Enough of the section's words to tell what it covers, without shipping the whole video. */
+  preview: string;
+  /** Words in the section, so a caller can tell a dense chapter from a throwaway one. */
+  wordCount: number;
+}
+
+/**
+ * Pair each chapter with the transcript that falls inside it. Previews are capped because the
+ * point is an at-a-glance map of a long video — pull a section's full text with
+ * formatTranscript once you know which one you want.
+ */
+export function buildOutline(
+  chapters: { title: string; start: number }[],
+  segments: Segment[],
+  previewChars = 280,
+): OutlineSection[] {
+  const ordered = [...chapters].sort((a, b) => a.start - b.start);
+  return ordered.map((c, i) => {
+    const end = i + 1 < ordered.length ? ordered[i + 1].start : null;
+    const words = segments
+      .filter((s) => s.start >= c.start && (end === null || s.start < end))
+      .map((s) => s.text)
+      .join(' ')
+      .trim();
+    const preview =
+      words.length > previewChars ? `${words.slice(0, previewChars).trimEnd()}…` : words;
+    return {
+      title: c.title,
+      start: c.start,
+      end,
+      preview,
+      wordCount: words ? words.split(/\s+/).length : 0,
+    };
+  });
+}
+
 export interface TranscriptMatch {
   start: number;
   text: string;

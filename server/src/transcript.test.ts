@@ -3,6 +3,7 @@ import {
   parseTranscript,
   formatTranscript,
   searchTranscript,
+  buildOutline,
   MAX_TRANSCRIPT_CHARS,
 } from './transcript.js';
 
@@ -84,5 +85,73 @@ describe('searchTranscript', () => {
       text: `repeated word ${i}`,
     }));
     expect(searchTranscript(many, 'repeated', 20)).toHaveLength(20);
+  });
+});
+
+describe('buildOutline', () => {
+  const segs = [
+    { start: 0, dur: 5, text: 'intro words here' },
+    { start: 10, dur: 5, text: 'still the intro' },
+    { start: 30, dur: 5, text: 'second section begins' },
+    { start: 90, dur: 5, text: 'third and final section' },
+  ];
+
+  it('pairs each chapter with the segments inside it and bounds each section', () => {
+    const outline = buildOutline(
+      [
+        { title: 'Intro', start: 0 },
+        { title: 'Middle', start: 30 },
+        { title: 'End', start: 60 },
+      ],
+      segs,
+    );
+    expect(outline).toEqual([
+      {
+        title: 'Intro',
+        start: 0,
+        end: 30,
+        preview: 'intro words here still the intro',
+        wordCount: 6,
+      },
+      { title: 'Middle', start: 30, end: 60, preview: 'second section begins', wordCount: 3 },
+      { title: 'End', start: 60, end: null, preview: 'third and final section', wordCount: 4 },
+    ]);
+  });
+
+  it('truncates a long preview but still counts every word', () => {
+    const long = [{ start: 0, dur: 1, text: 'word '.repeat(200).trim() }];
+    const [section] = buildOutline([{ title: 'A', start: 0 }], long, 20);
+    expect(section.preview.endsWith('…')).toBe(true);
+    expect(section.preview.length).toBeLessThanOrEqual(21);
+    expect(section.wordCount).toBe(200);
+  });
+
+  it('sorts chapters by start so section bounds are never inverted', () => {
+    const outline = buildOutline(
+      [
+        { title: 'Later', start: 30 },
+        { title: 'Earlier', start: 0 },
+      ],
+      segs,
+    );
+    expect(outline.map((s) => [s.title, s.start, s.end])).toEqual([
+      ['Earlier', 0, 30],
+      ['Later', 30, null],
+    ]);
+  });
+
+  it('gives an empty preview for a chapter with no transcript under it', () => {
+    const [section] = buildOutline([{ title: 'Silent', start: 500 }], segs);
+    expect(section).toEqual({
+      title: 'Silent',
+      start: 500,
+      end: null,
+      preview: '',
+      wordCount: 0,
+    });
+  });
+
+  it('returns nothing when there are no chapters', () => {
+    expect(buildOutline([], segs)).toEqual([]);
   });
 });
