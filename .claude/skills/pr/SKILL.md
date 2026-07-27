@@ -13,14 +13,14 @@ This repo works on `dev` day-to-day; `main` is the release branch. PRs go `dev` 
 From the repo root, before opening the PR:
 
 ```sh
-npm run lint
-npm run format:check
-npm run typecheck
-npm run build
-npm test
+pnpm run lint
+pnpm run format:check
+pnpm run typecheck
+pnpm run build
+pnpm test
 ```
 
-Run `npm run smoke` too if the change touched the server's MCP protocol or tool surface
+Run `pnpm run smoke` too if the change touched the server's MCP protocol or tool surface
 (`server/src/tools/`, `bridge.ts`, `extension/src/content.ts`). Note in the PR body if it
 wasn't run (e.g. port 8765 already held by a live session) and why.
 
