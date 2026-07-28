@@ -52,7 +52,7 @@ pnpm test
 ```
 
 `pnpm run format` auto-fixes formatting. A pre-commit hook (husky + lint-staged) runs
-oxlint + Prettier on staged files automatically.
+oxlint + oxfmt on staged files automatically.
 
 - Run `pnpm run smoke` if you changed the server's MCP protocol or tool surface.
 - Update `README.md` / `CHANGELOG.md` if behavior or configuration changed.
