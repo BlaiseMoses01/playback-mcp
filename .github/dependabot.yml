@@ -28,9 +28,3 @@ updates:
     open-pull-requests-limit: 5
     cooldown:
       default-days: 3
-    groups:
-      # The typescript-eslint packages release in lockstep; bump them as one PR.
-      typescript-eslint:
-        patterns:
-          - 'typescript-eslint'
-          - '@typescript-eslint/*'

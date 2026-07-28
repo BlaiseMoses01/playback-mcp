@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Dev toolchain: TypeScript 7 (native compiler) replaces tsc 6 for typecheck and the
+  published build, and oxlint with type-aware linting (oxlint-tsgolint) replaces
+  ESLint + typescript-eslint. No runtime behavior change for package consumers.
+
 ## [0.2.7] - 2026-08-30
 
 ### Changed

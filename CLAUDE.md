@@ -28,7 +28,7 @@ tooling from the repo root.
 ```sh
 pnpm install           # install both workspaces (husky hooks install via prepare)
 pnpm run build         # build server (tsc) + extension (esbuild) across workspaces
-pnpm run lint          # eslint over the whole repo
+pnpm run lint          # oxlint (type-aware via oxlint-tsgolint) over the whole repo
 pnpm run format        # prettier --write (format:check for the CI-style check)
 pnpm run typecheck     # tsc --noEmit for server + extension tsconfigs
 pnpm test              # vitest run (server pure-logic tests)

@@ -14,7 +14,7 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "build": "pnpm -r build",
-    "lint": "eslint .",
+    "lint": "oxlint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit -p server/tsconfig.json && tsc -p extension/tsconfig.json",
@@ -25,7 +25,7 @@
   },
   "lint-staged": {
     "*.{ts,js,mjs}": [
-      "eslint --fix",
+      "oxlint --fix",
       "prettier --write"
     ],
     "*.{json,md,yml,yaml}": [
@@ -33,15 +33,12 @@
     ]
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "eslint": "^10.8.0",
-    "eslint-config-prettier": "^10.0.0",
-    "globals": "^17.11.0",
     "husky": "^9.1.0",
     "lint-staged": "^17.3.0",
+    "oxlint": "^1.75.0",
+    "oxlint-tsgolint": "^7.0.2001",
     "prettier": "^3.9.6",
     "typescript": "^7.0.2",
-    "typescript-eslint": "^8.67.0",
     "vitest": "^4.1.10"
   }
 }

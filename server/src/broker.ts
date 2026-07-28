@@ -8,7 +8,7 @@
 // One broker per port: a second instance hitting EADDRINUSE exits quietly, so concurrent
 // auto-spawn (from several servers starting at once) is harmless — the OS bind picks the winner.
 import { WebSocketServer, WebSocket } from 'ws';
-import { OFFLINE_HINT } from './bridge.js';
+import { OFFLINE_HINT, rawDataToString } from './bridge.js';
 
 const log = (...args: unknown[]) => console.error('[broker]', ...args);
 
@@ -74,7 +74,7 @@ wss.on('error', (err: NodeJS.ErrnoException) => {
 // Classify each socket by its first message: MCP clients announce role:'mcp', the extension
 // sends a bare hello.
 wss.on('connection', (ws) => {
-  ws.once('message', (data) => classify(ws, String(data)));
+  ws.once('message', (data) => classify(ws, rawDataToString(data)));
 });
 
 function classify(ws: WebSocket, raw: string): void {
@@ -102,7 +102,7 @@ function registerClient(ws: WebSocket, sessionId: string): void {
   }
   log(`client connected: session ${sessionId} (${clients.size} total)`);
   sendJson(ws, { event: extensionConnected() ? 'extension_online' : 'extension_offline' });
-  ws.on('message', (data) => onClientMessage(sessionId, String(data)));
+  ws.on('message', (data) => onClientMessage(sessionId, rawDataToString(data)));
   ws.on('close', () => onClientClose(sessionId, ws));
   ws.on('error', (err) => log('client socket error:', err.message));
 }
@@ -140,7 +140,7 @@ function adoptExtension(ws: WebSocket): void {
   extension = ws;
   log('extension connected');
   broadcastToClients({ event: 'extension_online' });
-  ws.on('message', (data) => onExtensionMessage(String(data)));
+  ws.on('message', (data) => onExtensionMessage(rawDataToString(data)));
   ws.on('close', () => {
     if (extension !== ws) return;
     extension = null;

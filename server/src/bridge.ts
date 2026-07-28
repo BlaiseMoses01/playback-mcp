@@ -1,4 +1,4 @@
-import { WebSocket } from 'ws';
+import { WebSocket, type RawData } from 'ws';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
@@ -8,6 +8,12 @@ const log = (...args: unknown[]) => console.error('[bridge]', ...args);
 export const OFFLINE_HINT =
   'Chrome extension is not connected. Open Chrome and confirm the Playback MCP extension is loaded ' +
   '(chrome://extensions → Developer mode → Load unpacked), then retry.';
+
+/** ws delivers Buffer | ArrayBuffer | Buffer[]; String() would render the non-Buffer shapes as "[object ArrayBuffer]". */
+export function rawDataToString(data: RawData): string {
+  if (Array.isArray(data)) return Buffer.concat(data).toString();
+  return Buffer.isBuffer(data) ? data.toString() : Buffer.from(data).toString();
+}
 
 export class BridgeOfflineError extends Error {
   constructor() {
@@ -62,7 +68,7 @@ export class Bridge {
       ws.send(JSON.stringify({ event: 'hello', role: 'mcp', sessionId: this.sessionId }));
       log(`connected to broker on ws://127.0.0.1:${this.port} (session ${this.sessionId})`);
     });
-    ws.on('message', (data) => this.onMessage(String(data)));
+    ws.on('message', (data) => this.onMessage(rawDataToString(data)));
     ws.on('close', () => {
       if (this.socket === ws) {
         this.socket = null;

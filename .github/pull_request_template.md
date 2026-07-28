@@ -23,7 +23,7 @@
 
 ## Checklist
 
-- [ ] `pnpm run lint` and `pnpm run format:check` pass (ESLint + Prettier)
+- [ ] `pnpm run lint` and `pnpm run format:check` pass (oxlint + Prettier)
 - [ ] `pnpm run typecheck` and `pnpm run build` succeed
 - [ ] `pnpm test` passes (and `pnpm run smoke` if the server protocol changed)
 - [ ] Updated `README.md` / `CHANGELOG.md` if behavior changed

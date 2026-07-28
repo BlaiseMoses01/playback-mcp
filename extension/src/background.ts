@@ -178,7 +178,7 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
   }
 });
 
-chrome.alarms.create('ws-keepalive', { periodInMinutes: 1 });
+void chrome.alarms.create('ws-keepalive', { periodInMinutes: 1 });
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === 'ws-keepalive') connect();
 });
