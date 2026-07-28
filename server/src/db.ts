@@ -1,7 +1,7 @@
-import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { DatabaseSync } from 'node:sqlite';
 
 // Per-user data dir (override with PLAYBACK_MCP_DATA_DIR).
 function defaultDataDir(): string {
@@ -132,7 +132,8 @@ export function findVideos(query?: string): VideoRow[] {
 
 export function getVideoByYoutubeId(youtubeId: string): VideoRow | undefined {
   return db.prepare(`SELECT * FROM videos WHERE youtube_id = ?`).get(youtubeId) as unknown as
-    VideoRow | undefined;
+    | VideoRow
+    | undefined;
 }
 
 export function touchLastPlayed(id: number): void {

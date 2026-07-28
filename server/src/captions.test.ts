@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { pickTrack } from './captions.js';
 
 const enAuto = { baseUrl: 'u-en-auto', languageCode: 'en', kind: 'asr' };

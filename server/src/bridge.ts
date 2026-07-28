@@ -1,7 +1,8 @@
-import { WebSocket, type RawData } from 'ws';
 import { spawn } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
+
+import { WebSocket, type RawData } from 'ws';
 
 const log = (...args: unknown[]) => console.error('[bridge]', ...args);
 

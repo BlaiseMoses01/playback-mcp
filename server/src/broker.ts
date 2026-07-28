@@ -8,6 +8,7 @@
 // One broker per port: a second instance hitting EADDRINUSE exits quietly, so concurrent
 // auto-spawn (from several servers starting at once) is harmless — the OS bind picks the winner.
 import { WebSocketServer, WebSocket } from 'ws';
+
 import { OFFLINE_HINT, rawDataToString } from './bridge.js';
 
 const log = (...args: unknown[]) => console.error('[broker]', ...args);

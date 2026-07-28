@@ -2,6 +2,16 @@
   "name": "playback-mcp",
   "version": "0.2.7",
   "description": "MCP server that controls YouTube playback in your browser via the Playback MCP extension — play, seek, loop sections, save timestamps, build a video library",
+  "keywords": [
+    "chrome-extension",
+    "claude",
+    "loop",
+    "mcp",
+    "playback",
+    "youtube"
+  ],
+  "homepage": "https://blaisemoses01.github.io/playback-mcp/",
+  "bugs": "https://github.com/BlaiseMoses01/playback-mcp/issues",
   "license": "MIT",
   "author": "Blaise Moses <bamoses2001@gmail.com>",
   "repository": {
@@ -9,9 +19,6 @@
     "url": "git+https://github.com/BlaiseMoses01/playback-mcp.git",
     "directory": "server"
   },
-  "homepage": "https://blaisemoses01.github.io/playback-mcp/",
-  "bugs": "https://github.com/BlaiseMoses01/playback-mcp/issues",
-  "type": "module",
   "bin": {
     "playback-mcp": "dist/index.js",
     "playback-mcp-broker": "dist/broker.js"
@@ -19,21 +26,11 @@
   "files": [
     "dist"
   ],
-  "engines": {
-    "node": ">=23.4"
-  },
+  "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "prepack": "pnpm run build && cp ../README.md ../LICENSE ."
   },
-  "keywords": [
-    "mcp",
-    "youtube",
-    "playback",
-    "loop",
-    "claude",
-    "chrome-extension"
-  ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
     "ws": "^8.21.3",
@@ -43,5 +40,8 @@
     "@types/node": "^26.1.2",
     "@types/ws": "^8.5.0",
     "typescript": "^7.0.2"
+  },
+  "engines": {
+    "node": ">=23.4"
   }
 }
