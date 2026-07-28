@@ -21,9 +21,8 @@ npm-debug.log*
 .env
 .env.*
 
-# Editor / OS cruft
+# OS cruft
 .DS_Store
-.vscode/
 *.swp
 
 # Claude Code local (per-machine) settings
