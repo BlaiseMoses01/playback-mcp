@@ -6,3 +6,5 @@ extension/manifest.json
 # Copied from the repo root into server/ by the prepack script; not source.
 server/README.md
 server/LICENSE
+# Generated example pages (notes-tree renders); not hand-edited source.
+docs/examples/

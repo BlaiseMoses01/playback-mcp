@@ -40,6 +40,7 @@
         --text: #16161d;
         --text-muted: #5b5b6b;
         --shadow: 0 1px 2px rgba(20, 20, 40, 0.04), 0 8px 24px rgba(20, 20, 40, 0.06);
+        --link: var(--indigo-ink);
 
         /* diagram-specific, theme-swapped below */
         --node-bg: #ffffff;
@@ -57,6 +58,7 @@
           --text: #ececf4;
           --text-muted: #a3a3b8;
           --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.35);
+          --link: var(--indigo);
 
           --node-bg: #171724;
           --node-stroke: #33334a;
@@ -64,6 +66,40 @@
           --edge-label: #9a9ab5;
           --canvas: #0e0e17;
         }
+      }
+
+      /* Explicit theme override (the 🌙/☀️ toggle); must win over the media query. */
+      :root[data-theme='dark'] {
+        --bg: #0b0b12;
+        --bg-elev: #12121c;
+        --surface: #14141f;
+        --border: #2a2a3c;
+        --text: #ececf4;
+        --text-muted: #a3a3b8;
+        --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.35);
+        --link: var(--indigo);
+        --node-bg: #171724;
+        --node-stroke: #33334a;
+        --edge: #3a3a52;
+        --edge-label: #9a9ab5;
+        --canvas: #0e0e17;
+        color-scheme: dark;
+      }
+      :root[data-theme='light'] {
+        --bg: #f7f7fb;
+        --bg-elev: #ffffff;
+        --surface: #ffffff;
+        --border: #e5e5ef;
+        --text: #16161d;
+        --text-muted: #5b5b6b;
+        --shadow: 0 1px 2px rgba(20, 20, 40, 0.04), 0 8px 24px rgba(20, 20, 40, 0.06);
+        --link: var(--indigo-ink);
+        --node-bg: #ffffff;
+        --node-stroke: #d9d9e6;
+        --edge: #b9b9cc;
+        --edge-label: #6b6b80;
+        --canvas: #ffffff;
+        color-scheme: light;
       }
 
       * {
@@ -84,13 +120,8 @@
         padding: 0 24px;
       }
       a {
-        color: var(--indigo-ink);
+        color: var(--link);
         text-decoration: none;
-      }
-      @media (prefers-color-scheme: dark) {
-        a {
-          color: var(--indigo);
-        }
       }
       a:hover {
         text-decoration: underline;
@@ -131,6 +162,27 @@
         font-size: 0.94rem;
         color: var(--text-muted);
       }
+      .nav-side {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .theme-btn {
+        display: inline-grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface);
+        cursor: pointer;
+        font-size: 0.95rem;
+        line-height: 1;
+      }
+      .theme-btn:hover {
+        border-color: var(--indigo);
+      }
 
       .page-head {
         text-align: center;
@@ -141,12 +193,7 @@
         letter-spacing: 0.12em;
         font-size: 0.76rem;
         font-weight: 700;
-        color: var(--indigo-ink);
-      }
-      @media (prefers-color-scheme: dark) {
-        .page-head .eyebrow {
-          color: var(--indigo);
-        }
+        color: var(--link);
       }
       .page-head h1 {
         font-size: clamp(1.8rem, 4.5vw, 2.6rem);
@@ -375,7 +422,17 @@
           </svg>
           Playback MCP
         </a>
-        <a class="back" href="../">← Back to home</a>
+        <span class="nav-side">
+          <a class="back" href="../">← Back to home</a>
+          <button
+            class="theme-btn"
+            type="button"
+            aria-label="Toggle light or dark theme"
+            title="Toggle theme"
+          >
+            &#127769;
+          </button>
+        </span>
       </div>
     </header>
 
@@ -977,6 +1034,37 @@
         };
         track.addEventListener('scroll', sync, { passive: true });
         sync();
+      })();
+
+      // Light/dark toggle — shared with the rest of the site via the same localStorage key.
+      (function () {
+        const themeBtn = document.querySelector('.theme-btn');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+        const isDark = () => {
+          const forced = document.documentElement.getAttribute('data-theme');
+          return forced ? forced === 'dark' : prefersDark.matches;
+        };
+        const syncThemeIcon = () => {
+          if (themeBtn) themeBtn.textContent = isDark() ? '☀️' : '\u{1F319}';
+        };
+        try {
+          const saved = localStorage.getItem('pmcp-theme');
+          if (saved === 'light' || saved === 'dark') {
+            document.documentElement.setAttribute('data-theme', saved);
+          }
+        } catch {}
+        if (themeBtn) {
+          themeBtn.addEventListener('click', () => {
+            const next = isDark() ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            try {
+              localStorage.setItem('pmcp-theme', next);
+            } catch {}
+            syncThemeIcon();
+          });
+        }
+        prefersDark.addEventListener('change', syncThemeIcon);
+        syncThemeIcon();
       })();
     </script>
 

@@ -70,6 +70,46 @@
         }
       }
 
+      /* Explicit theme override (the 🌙/☀️ toggle); must win over the media query. */
+      :root[data-theme='dark'] {
+        --bg: #0b0b12;
+        --bg-elev: #12121c;
+        --surface: #14141f;
+        --border: #2a2a3c;
+        --text: #ececf4;
+        --text-muted: #a3a3b8;
+        --code-bg: #0a0a11;
+        --code-text: #e8e8f4;
+        --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.35);
+        --arch-stroke: #33334a;
+        --arch-edge: #3a3a52;
+        --arch-elabel: #9a9ab5;
+        color-scheme: dark;
+      }
+      :root[data-theme='light'] {
+        --bg: #f7f7fb;
+        --bg-elev: #ffffff;
+        --surface: #ffffff;
+        --border: #e5e5ef;
+        --text: #16161d;
+        --text-muted: #5b5b6b;
+        --code-bg: #0f0f17;
+        --code-text: #e8e8f4;
+        --shadow: 0 1px 2px rgba(20, 20, 40, 0.04), 0 8px 24px rgba(20, 20, 40, 0.06);
+        --arch-stroke: #d9d9e6;
+        --arch-edge: #b9b9cc;
+        --arch-elabel: #6b6b80;
+        color-scheme: light;
+      }
+      :root[data-theme='dark'] .card .ic,
+      :root[data-theme='dark'] .safety .card h3 svg {
+        color: var(--indigo);
+      }
+      :root[data-theme='light'] .card .ic,
+      :root[data-theme='light'] .safety .card h3 svg {
+        color: var(--indigo-ink);
+      }
+
       * {
         box-sizing: border-box;
       }
@@ -166,6 +206,76 @@
       .nav-icons svg {
         display: block;
         width: auto;
+      }
+      .theme-btn {
+        display: inline-grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface);
+        cursor: pointer;
+        font-size: 0.95rem;
+        line-height: 1;
+      }
+      .theme-btn:hover {
+        border-color: var(--indigo);
+      }
+      /* Divider so the toggle reads as a control, not another provider link */
+      .nav-sep {
+        width: 1px;
+        height: 18px;
+        background: var(--border);
+      }
+      .sub-label {
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin: 0 0 12px;
+        text-align: center;
+      }
+      .uses + .sub-label,
+      .dots + .sub-label {
+        margin-top: 28px;
+      }
+      #examples .uc {
+        text-align: center;
+      }
+      /* Center the promo rows (2 cards + 3 cards) instead of leaving grid gaps.
+         Phones hide the labeled groups and show one combined 5-card carousel instead —
+         two stacked scrollers (and two dots rows) were too cramped there. */
+      .promo-mobile {
+        display: none;
+      }
+      @media (min-width: 561px) {
+        #examples .uses {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+        #examples .uc {
+          flex: 0 1 280px;
+        }
+      }
+      /* #examples prefix so this outranks the later generic .uses carousel rules,
+         which would otherwise re-show the hidden groups as flex rows on phones */
+      @media (max-width: 560px) {
+        #examples .promo-desktop {
+          display: none;
+        }
+        #examples .promo-mobile {
+          display: block;
+        }
+      }
+      /* The notes page's attribution mark, inside the teaser CTA button */
+      .btn-mark {
+        width: 1.1rem;
+        height: 1.1rem;
+        flex: none;
       }
       .nav-toggle {
         display: none;
@@ -644,6 +754,21 @@
         color: var(--text-muted);
         font-size: 0.9rem;
       }
+      a.uc {
+        display: block;
+        color: inherit;
+      }
+      a.uc:hover {
+        text-decoration: none;
+        border-color: var(--indigo);
+      }
+      a.uc .more {
+        display: inline-block;
+        margin-top: 10px;
+        color: var(--indigo-ink);
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
 
       /* ---------- Demo ---------- */
       .demo-frame {
@@ -828,6 +953,7 @@
           <a href="#capabilities">Capabilities</a>
           <a href="#how">Design</a>
           <a href="#install">Install</a>
+          <a href="#examples">v1.0.0</a>
           <span class="nav-icons">
             <a
               href="https://github.com/BlaiseMoses01/playback-mcp"
@@ -856,6 +982,15 @@
                 />
               </svg>
             </a>
+            <span class="nav-sep" aria-hidden="true"></span>
+            <button
+              class="theme-btn"
+              type="button"
+              aria-label="Toggle light or dark theme"
+              title="Toggle theme"
+            >
+              &#127769;
+            </button>
           </span>
         </nav>
       </div>
@@ -1555,6 +1690,108 @@
       </div>
     </section>
 
+    <!-- ===== v1.0.0 promo ===== -->
+    <section id="examples">
+      <div class="wrap">
+        <div class="sec-head">
+          <h2>Coming soon in v1.0.0</h2>
+          <p>Headless processing, playlist handling, and recursive notes generation.</p>
+        </div>
+        <!-- Desktop: two labeled groups. Phones swap to the single carousel below. -->
+        <p class="sub-label promo-desktop">New tools</p>
+        <div class="uses promo-desktop">
+          <div class="uc">
+            <span class="ico" aria-hidden="true">📡</span>
+            <h3>Headless mode</h3>
+            <p>Transcripts, outlines, and chapters from just a URL &mdash; no browser tab.</p>
+          </div>
+          <div class="uc">
+            <span class="ico" aria-hidden="true">🗂️</span>
+            <h3>Playlist tools</h3>
+            <p>List whole playlists, and run parallel sessions in background tabs.</p>
+          </div>
+        </div>
+        <p class="sub-label promo-desktop">Recursive notes</p>
+        <div class="uses promo-desktop">
+          <div class="uc">
+            <span class="ico" aria-hidden="true">🤖</span>
+            <h3>Agent notes pipeline</h3>
+            <p>Research &rarr; verify &rarr; synthesize &rarr; render.</p>
+          </div>
+          <div class="uc">
+            <span class="ico" aria-hidden="true">🌳</span>
+            <h3>Recursive note relations</h3>
+            <p>A dependency tree linking playlist, videos, and sections.</p>
+          </div>
+          <div class="uc">
+            <span class="ico" aria-hidden="true">🛡️</span>
+            <h3>Adversarial review</h3>
+            <p>Every citation re-checked against the transcript for faithfulness.</p>
+          </div>
+        </div>
+        <div class="promo-mobile">
+          <div class="uses" data-carousel>
+            <div class="uc">
+              <span class="ico" aria-hidden="true">📡</span>
+              <h3>Headless mode</h3>
+              <p>Transcripts, outlines, and chapters from just a URL &mdash; no browser tab.</p>
+            </div>
+            <div class="uc">
+              <span class="ico" aria-hidden="true">🗂️</span>
+              <h3>Playlist tools</h3>
+              <p>List whole playlists, and run parallel sessions in background tabs.</p>
+            </div>
+            <div class="uc">
+              <span class="ico" aria-hidden="true">🤖</span>
+              <h3>Agent notes pipeline</h3>
+              <p>Research &rarr; verify &rarr; synthesize &rarr; render.</p>
+            </div>
+            <div class="uc">
+              <span class="ico" aria-hidden="true">🌳</span>
+              <h3>Recursive note relations</h3>
+              <p>A dependency tree linking playlist, videos, and sections.</p>
+            </div>
+            <div class="uc">
+              <span class="ico" aria-hidden="true">🛡️</span>
+              <h3>Adversarial review</h3>
+              <p>Every citation re-checked against the transcript for faithfulness.</p>
+            </div>
+          </div>
+          <div class="dots" role="tablist" aria-label="What's coming in v1.0.0"></div>
+        </div>
+        <div class="cta-row" style="margin-top: 28px">
+          <a class="btn btn-primary" href="examples/aie-worlds-fair-2026/">
+            <svg class="btn-mark" viewBox="70 52 372 384" fill="currentColor" aria-hidden="true">
+              <mask id="cta-play">
+                <rect x="70" y="52" width="372" height="384" fill="#fff" />
+                <path
+                  d="M212 232 L212 342 L312 287 Z"
+                  fill="#000"
+                  stroke="#000"
+                  stroke-width="18"
+                  stroke-linejoin="round"
+                  stroke-linecap="round"
+                />
+              </mask>
+              <g mask="url(#cta-play)">
+                <polyline
+                  points="256,140 256,98 296,72"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="16"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <circle cx="296" cy="68" r="16" />
+                <rect x="70" y="138" width="372" height="298" rx="58" />
+              </g>
+            </svg>
+            Teaser: the AIE World&rsquo;s Fair artifact
+          </a>
+        </div>
+      </div>
+    </section>
+
     <!-- ===== Footer ===== -->
     <footer>
       <div class="wrap foot-inner">
@@ -1723,6 +1960,35 @@
         apply();
         mq.addEventListener('change', apply);
       });
+
+      // Light/dark toggle — shared with the notes pages via the same localStorage key.
+      const themeBtn = document.querySelector('.theme-btn');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+      const isDark = () => {
+        const forced = document.documentElement.getAttribute('data-theme');
+        return forced ? forced === 'dark' : prefersDark.matches;
+      };
+      const syncThemeIcon = () => {
+        if (themeBtn) themeBtn.textContent = isDark() ? '☀️' : '\u{1F319}';
+      };
+      try {
+        const saved = localStorage.getItem('pmcp-theme');
+        if (saved === 'light' || saved === 'dark') {
+          document.documentElement.setAttribute('data-theme', saved);
+        }
+      } catch {}
+      if (themeBtn) {
+        themeBtn.addEventListener('click', () => {
+          const next = isDark() ? 'light' : 'dark';
+          document.documentElement.setAttribute('data-theme', next);
+          try {
+            localStorage.setItem('pmcp-theme', next);
+          } catch {}
+          syncThemeIcon();
+        });
+      }
+      prefersDark.addEventListener('change', syncThemeIcon);
+      syncThemeIcon();
     </script>
   </body>
 </html>
