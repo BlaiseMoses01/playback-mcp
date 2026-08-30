@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.7] - 2026-08-30
+
+### Changed
+
+- Dependency maintenance only — no behavior change, and the shipped `dist/` is
+  unchanged from 0.2.6 apart from two Prettier reflows.
+- Raised the floors on both runtime dependencies so the published package can no longer
+  resolve to versions with open high-severity advisories:
+  - `@modelcontextprotocol/sdk` `^1.12.0` → `^1.30.0`. The old floor admitted 1.12.0–1.25.3,
+    which are affected by a cross-client data leak via a shared server/transport, a ReDoS,
+    and (below 1.24.0) missing DNS-rebinding protection. `playback-mcp` runs one stdio
+    server per client, so the shared-transport leak did not apply to this architecture.
+  - `ws` `^8.18.0` → `^8.21.3`. The old floor admitted 8.18.0–8.20.x, affected by a
+    memory-exhaustion DoS from tiny fragments (< 8.21.0) and an uninitialized memory
+    disclosure (< 8.20.1). The broker's socket is localhost-only behind the Origin
+    allow-list, so reaching it required an already-permitted local origin.
+
+  A fresh install of 0.2.6 already resolved to patched versions through the caret ranges;
+  this release closes the floors for anyone pinned by an older lockfile.
+
+- Development toolchain bumps (not shipped): `eslint` 10.8.0, `typescript-eslint` 8.68.0,
+  `globals` 17.11.0, `esbuild` 0.28.2, `@types/chrome` 0.2.6, `@types/node` 26.1.2,
+  `lint-staged` 17.3.0, `prettier` 3.9.6, and CI action pins for `github/codeql-action`
+  (v4.37.7) and `pnpm/action-setup` (v6.0.10).
+
 ## [0.2.6] - 2026-07-06
 
 ### Changed
@@ -113,7 +138,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   workflows; Dependabot for GitHub Actions and npm; husky + lint-staged pre-commit hooks.
 - Project docs: README, CONTRIBUTING, SECURITY, AGENTS/CLAUDE guidance, and a PR template.
 
-[Unreleased]: https://github.com/BlaiseMoses01/playback-mcp/compare/v0.2.6...HEAD
+[Unreleased]: https://github.com/BlaiseMoses01/playback-mcp/compare/v0.2.7...HEAD
+[0.2.7]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.7
 [0.2.6]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.6
 [0.2.5]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.5
 [0.2.4]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.4
