@@ -35,12 +35,12 @@
     "chrome-extension"
   ],
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.12.0",
-    "ws": "^8.21.1",
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "ws": "^8.21.3",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@types/node": "^26.1.1",
+    "@types/node": "^26.1.2",
     "@types/ws": "^8.5.0",
     "typescript": "^6.0.3"
   }
