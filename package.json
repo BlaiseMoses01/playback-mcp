@@ -1,47 +1,44 @@
 {
   "name": "playback-mcp",
   "private": true,
+  "homepage": "https://blaisemoses01.github.io/playback-mcp/",
+  "bugs": "https://github.com/BlaiseMoses01/playback-mcp/issues",
   "license": "MIT",
   "author": "Blaise Moses <bamoses2001@gmail.com>",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/BlaiseMoses01/playback-mcp.git"
   },
-  "homepage": "https://blaisemoses01.github.io/playback-mcp/",
-  "bugs": "https://github.com/BlaiseMoses01/playback-mcp/issues",
   "type": "module",
-  "packageManager": "pnpm@11.9.0",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "build": "pnpm -r build",
-    "lint": "eslint .",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "lint": "oxlint",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
     "typecheck": "tsc --noEmit -p server/tsconfig.json && tsc -p extension/tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
     "prepare": "husky",
     "smoke": "node scripts/mcp-poke.mjs"
   },
-  "lint-staged": {
-    "*.{ts,js,mjs}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,md,yml,yaml}": [
-      "prettier --write"
-    ]
-  },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "eslint": "^10.8.0",
-    "eslint-config-prettier": "^10.0.0",
-    "globals": "^17.11.0",
     "husky": "^9.1.0",
     "lint-staged": "^17.3.0",
-    "prettier": "^3.9.6",
-    "typescript": "^6.0.3",
-    "typescript-eslint": "^8.67.0",
+    "oxfmt": "^0.60.0",
+    "oxlint": "^1.75.0",
+    "oxlint-tsgolint": "^7.0.2001",
+    "typescript": "^7.0.2",
     "vitest": "^4.1.10"
-  }
+  },
+  "lint-staged": {
+    "*.{ts,js,mjs}": [
+      "oxlint --fix",
+      "oxfmt"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "oxfmt"
+    ]
+  },
+  "packageManager": "pnpm@11.9.0"
 }

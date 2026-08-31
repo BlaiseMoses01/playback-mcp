@@ -1,5 +1,6 @@
-import * as esbuild from 'esbuild';
 import { cpSync, mkdirSync } from 'node:fs';
+
+import * as esbuild from 'esbuild';
 
 mkdirSync('dist', { recursive: true });
 

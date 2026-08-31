@@ -35,10 +35,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Lint (ESLint)
+      - name: Lint (oxlint)
         run: pnpm run lint
 
-      - name: Format check (Prettier)
+      - name: Format check (oxfmt)
         run: pnpm run format:check
 
       - name: Typecheck (tsc)

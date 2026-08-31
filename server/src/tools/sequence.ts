@@ -1,9 +1,10 @@
-import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
+
 import type { Bridge } from '../bridge.js';
 import { formatTime } from '../timeparse.js';
-import { ok, handler } from './util.js';
 import { resolveTimeOrLabel } from './playback.js';
+import { ok, handler } from './util.js';
 
 export function registerSequenceTools(server: McpServer, bridge: Bridge): void {
   server.registerTool(

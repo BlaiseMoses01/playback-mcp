@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { parseTime, formatTime, parseRate, parseVolume } from './timeparse.js';
 
 describe('parseTime', () => {

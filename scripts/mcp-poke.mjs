@@ -2,10 +2,11 @@
 // extension, and exercises tools over real MCP stdio JSON-RPC. The second server proves the
 // one-to-many upgrade: each server is its own session and drives an independent video.
 import { spawn } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
 import { mkdtempSync, rmSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import WebSocket from 'ws';
 
 const root = fileURLToPath(new URL('..', import.meta.url));

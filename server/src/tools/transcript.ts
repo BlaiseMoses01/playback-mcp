@@ -1,10 +1,11 @@
-import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
+
 import type { Bridge } from '../bridge.js';
+import { fetchCaptions } from '../captions.js';
 import { parseTime, formatTime } from '../timeparse.js';
 import { parseTranscript, formatTranscript, searchTranscript } from '../transcript.js';
 import type { Segment } from '../transcript.js';
-import { fetchCaptions } from '../captions.js';
 import { ok, handler, getPlayerState, resolveVideoParam } from './util.js';
 
 interface CachedTranscript {

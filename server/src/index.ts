@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 import { readFileSync } from 'node:fs';
+
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+
 import { Bridge } from './bridge.js';
 import { registerLibraryTools } from './tools/library.js';
-import { registerPlaybackTools } from './tools/playback.js';
 import { registerLoopTools } from './tools/loop.js';
+import { registerPlaybackTools } from './tools/playback.js';
 import { registerSequenceTools } from './tools/sequence.js';
 import { registerTranscriptTools } from './tools/transcript.js';
 
