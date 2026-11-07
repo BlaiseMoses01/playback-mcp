@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.8] - 2026-11-07
+
+### Security
+
+- Dependency maintenance only, with no behavior change. Raised the floors on the runtime
+  dependencies so the published package can no longer resolve to versions with open
+  high or critical advisories:
+  - `@modelcontextprotocol/sdk` `^1.30.0` → `^1.32.2`. The old floor admitted versions
+    affected by: missing request body size and JSON-RPC batch length limits in the HTTP
+    transports (< 1.30.1); an OAuth client that could send credentials to an
+    authorization server chosen by the MCP server (< 1.31.0); memory exhaustion from a
+    single in-limit HTTP request during validation (< 1.32.0); and experimental tasks not
+    tied to their creating session (< 1.32.0). Updating also pulls patched versions of
+    its express dependencies: `proxy-addr` 2.0.8 (critical: IP spoofing via an
+    IPv4-mapped IPv6 trust subnet) and `body-parser` 2.4.0 (DoS via trailing bytes after
+    a compressed body). `playback-mcp` uses the stdio transport only, and its broker is
+    localhost-only, so the HTTP and OAuth paths were not reachable in this architecture.
+  - `zod` `^4.5.1` → `^4.6.7`. The old floor admitted versions where validating
+    oversized constrained collections could exhaust memory.
+  - `ws` `^8.21.3` → `^8.22.0`.
+
+### Changed
+
+- Development toolchain bumps (not shipped): `vitest` 5.1.0 (major; `vite` 8.3.6 is now
+  declared explicitly, since vitest 5 made it a peer dependency), `typescript-eslint`
+  8.72.1, `globals` 17.14.0, `@types/node` 26.6.6, `@types/ws` 8.18.2, and CI action pins
+  for `github/codeql-action` (v4.38.3) and `actions/setup-node` (v7.1.0).
+
 ## [0.2.7] - 2026-08-30
 
 ### Changed
@@ -138,7 +166,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   workflows; Dependabot for GitHub Actions and npm; husky + lint-staged pre-commit hooks.
 - Project docs: README, CONTRIBUTING, SECURITY, AGENTS/CLAUDE guidance, and a PR template.
 
-[Unreleased]: https://github.com/BlaiseMoses01/playback-mcp/compare/v0.2.7...HEAD
+[Unreleased]: https://github.com/BlaiseMoses01/playback-mcp/compare/v0.2.8...HEAD
+[0.2.8]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.8
 [0.2.7]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.7
 [0.2.6]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.6
 [0.2.5]: https://github.com/BlaiseMoses01/playback-mcp/releases/tag/v0.2.5
