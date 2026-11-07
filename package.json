@@ -36,12 +36,13 @@
     "@eslint/js": "^10.0.1",
     "eslint": "^10.9.1",
     "eslint-config-prettier": "^10.0.0",
-    "globals": "^17.11.0",
+    "globals": "^17.13.0",
     "husky": "^9.1.0",
     "lint-staged": "^17.4.1",
     "prettier": "^3.9.6",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.67.0",
-    "vitest": "^4.1.11"
+    "typescript-eslint": "^8.71.1",
+    "vite": "^8.3.6",
+    "vitest": "^5.0.3"
   }
 }
