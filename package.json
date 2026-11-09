@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "eslint": "^10.9.1",
+    "eslint": "^10.14.0",
     "eslint-config-prettier": "^10.0.0",
     "globals": "^17.13.0",
     "husky": "^9.1.0",
